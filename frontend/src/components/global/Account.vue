@@ -4,25 +4,20 @@
       <!-- <CAvatar :src="avatar" size="md" /> -->
        <CIcon icon="cil-user" size="lg" />
     </CDropdownToggle>
-    <CDropdownMenu class="pt-0">
+    <CDropdownMenu class="py-0">
       <CDropdownHeader
         component="h6"
-        class="bg-body-secondary text-body-secondary fw-semibold mb-2 rounded-top"
+        class="bg-body-secondary text-body-secondary fw-semibold"
       >
-        Account
+        {{ user.first_name }} {{ user.last_name }} <br>
+        {{ user.email }}
       </CDropdownHeader>
-      <CDropdownHeader
-        component="h6"
-        class="bg-body-secondary text-body-secondary fw-semibold my-2"
-      >
-        Settings
-      </CDropdownHeader>
-      <CDropdownItem @click="$router.push({ name: 'Profile' })" href="#">        
+      <CDropdownItem @click="$router.push({ name: 'Profile' })" href="#" class="py-2">        
         <CIcon icon="cil-user" /> 
         Profile 
       </CDropdownItem>
-      <CDropdownDivider />
-      <CDropdownItem @click="authStore.logout()" href="#"> 
+      <CDropdownDivider class="my-0" />
+      <CDropdownItem @click="logout" href="#" class="py-2"> 
         <CIcon icon="cil-lock-locked" /> 
         Logout 
       </CDropdownItem>
@@ -33,6 +28,16 @@
 import { useAuthStore } from '@/stores';
 import { useRouter } from 'vue-router';
 
-const authStore = useAuthStore();
-const $router = useRouter();
+const { auth: { user }, logout: authStoreLogout } = useAuthStore();
+const $router            = useRouter();
+
+/**
+ * Logs the user out and redirects to the login page
+ */
+const logout = (): any => {
+  // Clear the authentication data from local storage
+  authStoreLogout();
+  // Redirect the user to the login page
+  $router.push({ name: 'Login' });
+}
 </script>

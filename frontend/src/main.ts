@@ -20,12 +20,12 @@ import './assets/scss/app.scss';
 
 const app = createApp(() => h(RouterView))
 
+app.use(createPinia())
 app.use(CoreuiVue)
 app.provide('icons', icons)
 app.component('CIcon', CIcon)
 app.use(toast);
 // app.component('EasyDataTable', Vue3EasyDataTable);
-app.use(createPinia())
 app.use(router)
 app.use(api);
 app.use(i18n);

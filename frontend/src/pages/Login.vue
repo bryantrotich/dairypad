@@ -61,7 +61,7 @@ import { cloneDeep, each, has, isEmpty } from 'lodash';
 import { computed, inject, reactive, watch} from 'vue';
 import * as yup from 'yup';
 import { useAuthStore } from '@/stores';
-import auth from '@/middlewares/auth';
+import { useRouter } from 'vue-router';
 
 const $api:   any = inject('$api');
 const $toast: any = inject('$toast');
@@ -75,6 +75,7 @@ const $data:  any = reactive({
     isDisabled: Boolean(true),
     loader:     Boolean() 
 });
+const $router: any = useRouter();
 
 const formSchema: any = yup.object().shape({
 	email:    yup.string().email("*Enter a valid email address").required("*Email address is required"),
@@ -120,6 +121,8 @@ const submit = async () => {
         authStore.login({token, user});
 
         $toast.success($i18n.t('login.messages.success.authenticated'));
+
+        $router.push({ name: 'Overview' });
         
     } catch(error: any) {
         $data.loader = false;

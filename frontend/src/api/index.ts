@@ -6,8 +6,8 @@ export default {
     install: (app: any) => {
         
         // State variables
-        const { VITE_API_URL }     = useEnvStore();
-        const { auth: { token, user } } = useAuthStore();
+        const { VITE_API_URL } = useEnvStore();
+        const { auth }         = useAuthStore();
 
         // Init axios
         const api = axios.create({
@@ -19,8 +19,8 @@ export default {
             },
         });
 
-        if( !isEmpty(token) ){
-            const { type, code } = token;
+        if( !isEmpty(auth) ){
+            const { type, code } = auth.token;
             api.interceptors.request.use(
                 (config) => {
                     config.headers.Authorization = `${type} ${code}`;
