@@ -11,6 +11,9 @@
     <CNavItem @click.prevent="$router.push({ name: 'Clients' })" href="#">
       <CIcon  customClassName="nav-icon" icon="cil-group"/> Clients
     </CNavItem>
+    <CNavItem @click.prevent="$router.push({ name: 'Socities' })" href="#">
+      <CIcon  customClassName="nav-icon" icon="cil-group"/> Socities
+    </CNavItem>    
     <!-- <CNavGroup>
       <template #togglerContent>
         <CIcon  customClassName="nav-icon" icon="cil-list"/> Posting Categorization

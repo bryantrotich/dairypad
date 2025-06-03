@@ -11,40 +11,51 @@ import {
   import { UserEntity } from '../../database/entities';
   import { pick, set } from 'lodash';
 import { UserModel } from 'src/database/models';
-  
-  @Injectable()
-  export class AuthGuard implements CanActivate {
-  
-    private readonly userEntity;
-    
-    constructor(
-      private jwtService: JwtService,
-      @Inject(UserModel) private readonly userModel: UserModel    
-    ) { }
-  
-    async canActivate(context: ExecutionContext): Promise<boolean> {
-      const request = context.switchToHttp().getRequest();
-      const token = this.extractTokenFromHeader(request);
+import { ConfigService } from '@nestjs/config';
 
-      if (token == undefined) {
-        throw new UnauthorizedException();
-      }
+@Injectable()
+export class AuthGuard implements CanActivate {
 
-      try {
-        const { user: { email } } = await this.jwtService.verifyAsync(token,{secret: process.env.JWT_SESSION_KEY});
-        const authUser            =  await this.userModel.findOneOrFail({email});
-        // 💡 We're assigning the payload to the request object here
-        // so that we can access it in our route handlers
-        set(request,'user',authUser);
-        // request.user =;
-      } catch(err) {
-        throw new UnauthorizedException();
-      }
-      return true;
-    }
+  private readonly config;
   
-    private extractTokenFromHeader(request: Request): string | undefined {
-      const [type, token] = request.headers.authorization?.split(' ') ?? [];
-      return type === 'Bearer' ? token : undefined;
-    }
+  constructor(
+    private configService: ConfigService,
+    private jwtService: JwtService,
+    @Inject(UserModel) 
+    private readonly userModel: UserModel    
+  ) { 
+    this.config = this.configService.get<any>('app.env');
   }
+
+  /**
+   * Middleware to check if the user is authenticated
+   * @param context Execution context passed by Nest
+   * @returns true if the user is authenticated, false otherwise
+   */
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+
+    const request = context.switchToHttp().getRequest();
+    const token = this.extractTokenFromHeader(request);
+
+    if (token == undefined) {
+      throw new UnauthorizedException();
+    }
+
+    try {
+      const { email } = await this.jwtService.verifyAsync(token,{secret: this.config['JWT_SESSION_KEY']});
+      const user      =  await this.userModel.findOneOrFail({email});
+      // 💡 We're assigning the payload to the request object here
+      // so that we can access it in our route handlers
+      set(request,'user',user);
+    } catch(err) {
+      throw new UnauthorizedException();
+    }
+
+    return true;
+  }
+
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
+  }
+}

@@ -1,15 +1,8 @@
 import auth from "@/middlewares/auth";
+import login from "./pages/login";
+import societies from "./pages/societies";
 
 export default {
-    login: {
-        messages: {
-            success:{
-                authenticated: 'You have been successfully authenticated.',
-            }, 
-            error: {
-                notfound: 'Invalid credentials. Please check your email or password.',
-                unauthorized: 'Invalid credentials. Please check your email or password.'
-            }
-        }
-    }
+    login,
+    societies
 }

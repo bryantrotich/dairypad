@@ -30,6 +30,16 @@ export default [
         component: () => import('@/pages/Clients.vue')
     },
     {
+        path: '/socities',
+        name: "Socities",
+        meta: {
+            title: 'Socities',
+            auth:  true,
+            state: 1
+        },
+        component: () => import('@/pages/Socities.vue')
+    },    
+    {
         path: '/company',
         name: "Company",
         meta: {

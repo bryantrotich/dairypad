@@ -10,6 +10,7 @@ import { isEmpty } from 'lodash';
 import * as moment from 'moment';
 import  'winston-daily-rotate-file';
 import { useContainer } from 'class-validator';
+import { HttpExceptionFilter } from './http/exceptions';
 
 // Directory separator
 const { sep } = require('path');
@@ -78,6 +79,7 @@ async function bootstrap() {
   );
   const { APP_PORT } = process.env;
 
+  app.useGlobalFilters(new HttpExceptionFilter())
   app.use(bodyParser.json({limit: '50mb'}));
   app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 

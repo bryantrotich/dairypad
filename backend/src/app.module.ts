@@ -1,14 +1,14 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ApiMiddleware, RedirectIfAuthMiddleware } from './http/middlewares';
 import { JwtStrategy, LocalStrategy } from './http/guards';
-import { AuthController, CompanyController, SystemController } from './http/controllers';
+import { AuthController, CompanyController, SocietyController, SystemController } from './http/controllers';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { AppConfig } from './support/config';
 import { AuthService } from './http/services';
-import { CompanyModule, MailModule, UserModule, RoleModule } from './modules';
+import { CompanyModule, MailModule, UserModule, RoleModule, SocietyModule } from './modules';
 import { CompanyEntity, RoleEntity, UserEntity } from './database/entities';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path'
@@ -56,11 +56,12 @@ import { MySqlDriver } from '@mikro-orm/mysql';
     MailModule,   
     CompanyModule,
     RoleModule,
+    SocietyModule,
     UserModule 
   ],
-  controllers: [AuthController, CompanyController, SystemController],
-  providers: [AuthService,JwtStrategy,LocalStrategy],
-})
+  controllers: [AuthController, CompanyController, SocietyController, SystemController],
+  providers:   [AuthService,JwtStrategy,LocalStrategy],
+})  
 
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

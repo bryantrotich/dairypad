@@ -26,17 +26,19 @@
 </template>
 <script setup lang="ts">
 import { useAuthStore } from '@/stores';
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 
-const { auth: { user }, logout: authStoreLogout } = useAuthStore();
-const $router            = useRouter();
+const authStore = useAuthStore();
+const $router   = useRouter();
 
+const user      =  computed( () => authStore.auth.user );
 /**
  * Logs the user out and redirects to the login page
  */
 const logout = (): any => {
   // Clear the authentication data from local storage
-  authStoreLogout();
+  authStore.logout();
   // Redirect the user to the login page
   $router.push({ name: 'Login' });
 }

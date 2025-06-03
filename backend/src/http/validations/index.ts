@@ -1,0 +1,1 @@
+export { CreateSocietyValidation as CreateSocietyValidation } from './society/create.validation';

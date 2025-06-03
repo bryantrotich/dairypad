@@ -28,5 +28,5 @@ export default debounce(
             next();
         }
 
-    },200
+    },400
 )

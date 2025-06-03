@@ -5,10 +5,6 @@ import { useStorage } from '@vueuse/core';
 
 export const useAuthStore = defineStore('auth', () => {
 
-    window.addEventListener('storage', (event) => {
-        console.log(event);
-    });
-
     const { VITE_APP_NAME } = import.meta.env;
     const data              = ref({});
 
