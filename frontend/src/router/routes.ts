@@ -20,25 +20,35 @@ export default [
         component: () => import('@/pages/Login.vue')
     },      
     {
-        path: '/clients',
-        name: "Clients",
+        path: '/customers',
+        name: "Customers",
         meta: {
-            title: 'Clients',
+            title: 'Customers',
             auth:  true,
             state: 1
         },
-        component: () => import('@/pages/Clients.vue')
+        component: () => import('@/pages/Customers.vue')
     },
     {
-        path: '/socities',
-        name: "Socities",
+        path: '/societies',
+        name: "Societies",
         meta: {
-            title: 'Socities',
+            title: 'Societies',
             auth:  true,
             state: 1
         },
-        component: () => import('@/pages/Socities.vue')
-    },    
+        component: () => import('@/pages/Societies.vue')
+    },   
+    {
+        path: '/products',
+        name: "Products",
+        meta: {
+            title: 'Products',
+            auth:  true,
+            state: 1
+        },
+        component: () => import('@/pages/Products.vue')
+    },        
     {
         path: '/company',
         name: "Company",

@@ -8,11 +8,14 @@
       <CIcon customClassName="nav-icon" icon="cil-speedometer"/> Overview
     </CNavItem>
     <CNavTitle>Data Management</CNavTitle>
-    <CNavItem @click.prevent="$router.push({ name: 'Clients' })" href="#">
-      <CIcon  customClassName="nav-icon" icon="cil-group"/> Clients
+    <CNavItem @click.prevent="$router.push({ name: 'Customers' })" href="#">
+      <CIcon  customClassName="nav-icon" icon="cil-group"/> Customers
     </CNavItem>
-    <CNavItem @click.prevent="$router.push({ name: 'Socities' })" href="#">
-      <CIcon  customClassName="nav-icon" icon="cil-group"/> Socities
+    <CNavItem @click.prevent="$router.push({ name: 'Products' })" href="#">
+      <CIcon  customClassName="nav-icon" icon="cil-grid"/> Products
+    </CNavItem>    
+    <CNavItem @click.prevent="$router.push({ name: 'Societies' })" href="#">
+      <CIcon  customClassName="nav-icon" icon="cil-building"/> Societies
     </CNavItem>    
     <!-- <CNavGroup>
       <template #togglerContent>

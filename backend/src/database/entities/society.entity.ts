@@ -1,5 +1,5 @@
 import { Entity, PrimaryKey, Property, OneToMany, Collection } from '@mikro-orm/core';
-import { RoleEntity, UserEntity } from './index';
+import { ProductEntity, UserEntity } from './index';
 import { v4 as uuidv4 } from 'uuid';
 
 @Entity({ tableName: 'societies' })
@@ -22,6 +22,12 @@ export class SocietyEntity {
 
   @Property({ nullable: true, default: '254' })
   country_code: string;
+
+  @OneToMany(
+    () => ProductEntity, 
+    product => product.society
+  )
+  products: Collection<ProductEntity[]>  
 
   @OneToMany(
     () => UserEntity, 

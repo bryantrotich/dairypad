@@ -7,8 +7,6 @@ export default debounce(
         const { auth: authenticated } = useAuthStore();
         const { meta: { auth } }      = to;
 
-        console.log(authenticated)
-
         if( auth && !isEmpty(authenticated) ){
             next();
         }

@@ -1,16 +1,14 @@
-import { Body, Controller, DefaultValuePipe, Get, HttpException, HttpStatus, Param, Post, Put, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Get, HttpException, HttpStatus, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../../guards';
 import { Request, Response } from 'express';
-import { SocietyModel, UserModel } from 'src/database/models';
-import { CreateSocietyValidation } from 'src/http/validations';
-import { get } from 'lodash';
+import { CustomerModel } from 'src/database/models';
+import { CreateCustomerValidation, CreateProductValidation } from 'src/http/validations';
 
-@Controller('societies')
-export class SocietyController {
+@Controller('customers')
+export class CustomerController {
 
     constructor(
-        private readonly societyModel: SocietyModel,
-        private readonly userModel: UserModel
+        private readonly customerModel: CustomerModel
     ){}
 
     @UseGuards(AuthGuard)
@@ -43,13 +41,13 @@ export class SocietyController {
             };
 
             // Fetch societies with pagination, using limit and offset
-            let [ societies, count ] = await this.societyModel.findAndCount({},options);
+            let [ products, count ] = await this.customerModel.findAndCount({},options);
 
             // Get pages
             let pages = Math.ceil(count / limit);
             
             // Send the fetched societies as a JSON response with HTTP status 200
-            res.status(HttpStatus.OK).json({ societies, count, pages });
+            res.status(HttpStatus.OK).json({ products, count, pages });
         } catch (error) {
             // Log the error and throw an HTTP exception with the error message and status
             console.log(error);
@@ -62,24 +60,24 @@ export class SocietyController {
     /**
      * Store a newly created society in storage.
      * 
-     * @param {CreateSocietyValidation} body - The request body containing the society data.
+     * @param {CreateCustomerValidation} body - The request body containing the society data.
      * @param {Request} req - The HTTP request object.
      * @param {Response} res - The HTTP response object.
      * 
      * @returns {Promise<void>} - Returns a Promise that resolves when the response is sent.
      */
     async store(
-        @Body() body: CreateSocietyValidation,
+        @Body() body: CreateCustomerValidation,
         @Req()  req:  Request,  
         @Res()  res:  Response
     ): Promise<void> {
         try {
 
             // Create a new society in the database
-            let society = await this.societyModel.save(body);
+            let product = await this.customerModel.save(body);
 
             // Send the created society as a JSON response with HTTP status 201 Created
-            res.status(HttpStatus.CREATED).json({ society });
+            res.status(HttpStatus.CREATED).json({ product });
         } catch (error) {
             // Log the error and throw an HTTP exception with the error message and status
             console.log(error);
@@ -87,34 +85,4 @@ export class SocietyController {
         }
     }
 
-    @UseGuards(AuthGuard)
-    @Put(':id/switch')
-    async switch( 
-        @Param('id') society_id: string,
-        @Req()       req: Request,  
-        @Res()       res: Response
-    ) {
-        try {
-            let { id: user_id } = get(req,'user');
-            console.log(society_id);
-            
-            // Fetch society
-            let society = await this.societyModel.findOne({ id: society_id });
-
-            console.log(society);
-
-            // Create a new society in the database
-            let update = await this.userModel.nativeUpdate({ id: user_id }, { society });
-            console.log(update);
-            // Fetch updated user
-            let user = await this.userModel.findOne({ id: user_id });
-
-            // Send the created society as a JSON response with HTTP status 201 Created
-            res.status(HttpStatus.CREATED).json({ user });
-        } catch (error) {
-            // Log the error and throw an HTTP exception with the error message and status
-            console.log(error);
-            throw new HttpException(error.message, error.status);
-        }        
-    }     
 }

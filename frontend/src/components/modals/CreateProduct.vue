@@ -1,47 +1,56 @@
 <template>
-   <CModal backdrop="static" :visible="modal" alignment="center" @close="modal = false">
+   <CModal backdrop="static" :visible="modal" centered @close="modal = false">
         <CForm @submit.prevent="save">
             <CModalHeader>
-                <CModalTitle>Create Society</CModalTitle>
+                <CModalTitle>Create Product</CModalTitle>
             </CModalHeader>
             <CModalBody>
                 <CCol md="12" class="py-2">
                     <CFormInput
                         type="text"
                         label="Name"
-                        placeholder="Eg. Kitale Society"
+                        placeholder="Eg. Maize seeds"
                         v-model="$data.form.name"
                     />
                     <p v-show="has($data.errors,'name')" class="text-danger mb-0">{{ $data.errors.name }}</p>              
                 </CCol>
                 <CCol md="12" class="py-2">
                     <CFormInput
-                        type="email"
-                        label="Email"
-                        placeholder="eg info@example.com"
-                        v-model="$data.form.email"
+                        type="number"
+                        label="Price"
+                        placeholder="eg. 100"
+                        min="0"
+                        v-model.number="$data.form.price"                        
                     />
-                    <p v-show="has($data.errors,'email')" class="text-danger mb-0">{{ $data.errors.email }}</p>              
-                </CCol>
-                <CCol md="12" class="py-2">
-                    <CFormInput
-                        type="text"
-                        label="City"
-                        placeholder="Eg. Kitale"
-                        v-model="$data.form.city"                        
-                    />
-                    <p v-show="has($data.errors,'city')" class="text-danger mb-0">{{ $data.errors.city }}</p>              
+                    <p v-show="has($data.errors,'price')" class="text-danger mb-0">{{ $data.errors.price }}</p>              
                 </CCol> 
                 <CCol md="12" class="py-2">
-                    <label for="phone">Phone Number</label>
-                    <VueTelInput 
-                        @input="getPhoneNumber" 
-                        defaultCountry="KE" 
-                        :inputOptions="{ styleClasses: 'form-control m-0', placeholder: 'Phone Number' }" 
-                        mode="international"
+                    <CFormInput
+                        type="number"
+                        label="Quantity"
+                        placeholder="eg. 100"
+                        min="0"
+                        v-model.number="$data.form.quantity"                        
                     />
-                    <p v-show="has($data.errors,'phone_number')" class="text-danger mb-0">{{ $data.errors.phone_number }}</p>              
-                </CCol>                                                
+                    <p v-show="has($data.errors,'quantity')" class="text-danger mb-0">{{ $data.errors.quantity }}</p>              
+                </CCol>  
+                <CCol md="12" class="py-2">
+                    <CFormSelect label="Status" aria-label="Status" v-model="$data.form.status">
+                        <option>Select Status*</option>
+                        <option v-for="(status,index) in $data.status" :key="index" :value="status.value">{{ status.label }}</option>
+                    </CFormSelect>
+                    <p v-show="has($data.errors,'status')" class="text-danger mb-0">{{ $data.errors.status }}</p>              
+                </CCol>                                 
+                <CCol md="12" class="py-2">
+                    <CFormTextarea
+                        rows="5"
+                        type="text"
+                        label="Description"
+                        placeholder="eg. This product is for sale"
+                        v-model="$data.form.description"
+                    />
+                    <p v-show="has($data.errors,'description')" class="text-danger mb-0">{{ $data.errors.emaidescriptionl }}</p>              
+                </CCol>                                                                
             </CModalBody>
             <CModalFooter>
                 <CButton color="secondary" @click="modal = false">Close</CButton>
@@ -54,12 +63,10 @@
     </CModal> 
 </template>
 <script setup lang="ts">
-import { CSpinner } from '@coreui/vue';
+import { CFormTextarea, CSpinner } from '@coreui/vue';
 import { cloneDeep, each, has, isEmpty } from 'lodash';
 import { computed, defineEmits, defineProps, inject, reactive, watch } from 'vue';
-import { object, string } from 'yup';
-import { VueTelInput } from 'vue3-tel-input'
-import 'vue3-tel-input/dist/vue3-tel-input.css'
+import { number, object, string } from 'yup';
 
 const $api: any   = inject('$api');
 const $toast: any = inject('$toast');
@@ -80,20 +87,26 @@ const $props = defineProps({
 const $data: any = reactive({
     errors: {},
     form: {
-        city:         "",
-        email:        "",
-        name:         "",
-        phone_number: "",
+        description: "",
+        name:        "",
+        price:       0,
+        quantity:    1,
+        status:      "inactive",
     },
+    status: [
+        { label: "Active", value: "active" },
+        { label: "Inactive", value: "inactive" },
+    ],
     loading: Boolean(),
     isDisabled: Boolean(),
 });
 
 const formSchema: any = object().shape({
-    city:         string().required("*City is required"),
+    description:  string().required("*Description is required"),
     name:         string().required("*Name is required"),
-    email:        string().email().required("*Email is required"),
-    phone_number: string().required("*Phone Number is required").matches(/^\+\d{3}\s\d{3}\s\d{6}$/, "*Invalid phone number"),
+    price:        number().min(1,'*Price must be greater than 0').required("*Price is required"),
+    quantity:     number().min(1,'*Quantity must be greater than 0').required("*Quantity is required"),
+    status:       string().required("*Status is required"),
 });
 
 /**
@@ -123,9 +136,9 @@ const save = async () => {
         // Set the loader to true so that the user knows that the data is being fetched.
         $data.loading = true;
         // Fetch the socities from the backend
-        const { data: { society } } = await $api.post('/societies',cloneDeep($data.form));
+        const { data: { society } } = await $api.post('/products',cloneDeep($data.form));
         // Toast show message
-        $toast.success($i18n.t('societies.messages.success.created'));    
+        $toast.success($i18n.t('products.messages.success.created'));    
         // Set the socities to the data fetched from the backend
         modal.value = false;
         // Fetch data

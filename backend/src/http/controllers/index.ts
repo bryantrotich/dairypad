@@ -1,4 +1,6 @@
 export { AuthController as AuthController } from './auth/auth.controller'
+export { CustomerController as CustomerController } from './customer/customer.controller'
 export { CompanyController as CompanyController } from './company/company.controller'
+export { ProductController as ProductController } from './product/product.controller'
 export { SocietyController as SocietyController } from './society/society.controller'
 export { SystemController as SystemController } from './system/system.controller'

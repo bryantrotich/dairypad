@@ -83,6 +83,7 @@ export class UserEntity {
     { 
       nullable:            true,
       cascade:             [Cascade.PERSIST, Cascade.REMOVE], 
+      eager:               true,
       referenceColumnName: 'id',
     }
   )

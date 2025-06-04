@@ -4,15 +4,9 @@ import { Response } from 'express';
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
-    const ctx       = host.switchToHttp();
-    const response  = ctx.getResponse<Response>();
-    const status    = exception.getStatus();
-    const message   = exception.message;
+    let ctx       = host.switchToHttp();
+    let response  = ctx.getResponse<Response>();
 
-    response.status(status).json({
-      statusCode: status,
-      message: message,
-      timestamp: new Date().toISOString(),
-    });
+    response.status(exception.getStatus()).json({ ...exception, timestamp: new Date().toLocaleDateString() });
   }
 }

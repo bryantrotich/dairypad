@@ -21,6 +21,22 @@ export const useAuthStore = defineStore('auth', () => {
     );
     
     /**
+     * Updates the authentication data in local storage
+     * 
+     * @param {Object} data - The authentication data containing the user and token
+     * 
+     * @returns {Promise<void>} - A promise that resolves when the authentication data has been updated
+     */
+    const update = async(data: any): Promise<void> => {
+        /**
+         * Stores the authentication data in local storage
+         * 
+         * @param {Object} data - The authentication data containing the user and token
+         */
+        auth.value = data;
+    }
+    
+    /**
      * Sets the authentication data
      * 
      * @param {Object} data - The authentication data containing the user and token
@@ -46,6 +62,6 @@ export const useAuthStore = defineStore('auth', () => {
         auth.value = {}
     }
 
-    return { auth: auth.value, login, logout }
+    return { auth: auth.value, login, logout, update }
 
 });
