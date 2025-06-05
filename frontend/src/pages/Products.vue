@@ -14,8 +14,24 @@
         <CCol md="12">
             <CRow>
                 <CCol md="12">
-                    <CCard>
+                    <CCard class="border-primary">
                         <CCardBody>
+                            <CCol md="12" class="my-3 d-flex justify-content-between">
+                                <CCol md="3">
+                                    <CFormInput
+                                        type="text"
+                                        placeholder="eg. Search by name"
+                                    />           
+                                </CCol>  
+                                <CCol md="2">             
+                                    <CFormSelect aria-placeholder="Per Page" v-model="$data.pagination.limit">
+                                        <option value="">Per Page</option>
+                                        <option value="5">5</option>
+                                        <option value="10">10</option>
+                                        <option value="20">20</option>
+                                    </CFormSelect>    
+                                </CCol>               
+                            </CCol>  
                             <CTable>
                                 <CTableHead>
                                     <CTableRow>

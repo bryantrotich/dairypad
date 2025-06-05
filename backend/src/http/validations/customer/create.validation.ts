@@ -15,11 +15,11 @@ export class CreateCustomerValidation {
     @IsOptional()
     contact_person: string
 
-    @IsNumber()
+    @IsString()
     @IsNotEmpty()
     name: string
     
-    @IsNumber()
+    @IsString()
     @IsNotEmpty()
     phone_number: string
     
@@ -27,7 +27,7 @@ export class CreateCustomerValidation {
     @IsOptional()
     postal_code: string
 
-    @IsNumber()
+    @IsString()
     @IsNotEmpty()
     @Enum(['account','cash'])    
     type: string    

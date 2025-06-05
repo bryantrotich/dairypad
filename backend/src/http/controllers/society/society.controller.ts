@@ -95,19 +95,16 @@ export class SocietyController {
         @Res()       res: Response
     ) {
         try {
-            let { id: user_id } = get(req,'user');
-            console.log(society_id);
+            let user = get(req,'user');
             
             // Fetch society
             let society = await this.societyModel.findOne({ id: society_id });
 
-            console.log(society);
+            // Assign user society
+            this.userModel.assign(user,{ society });
 
-            // Create a new society in the database
-            let update = await this.userModel.nativeUpdate({ id: user_id }, { society });
-            console.log(update);
-            // Fetch updated user
-            let user = await this.userModel.findOne({ id: user_id });
+            // Save user
+            await this.userModel.getEntityManager().persistAndFlush(user);
 
             // Send the created society as a JSON response with HTTP status 201 Created
             res.status(HttpStatus.CREATED).json({ user });

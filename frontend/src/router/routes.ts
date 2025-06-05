@@ -38,7 +38,17 @@ export default [
             state: 1
         },
         component: () => import('@/pages/Societies.vue')
-    },   
+    }, 
+    {
+        path: '/transporters',
+        name: "Transporters",
+        meta: {
+            title: 'Transporters',
+            auth:  true,
+            state: 1
+        },
+        component: () => import('@/pages/Transporters.vue')
+    },       
     {
         path: '/products',
         name: "Products",

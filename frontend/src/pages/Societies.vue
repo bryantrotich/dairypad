@@ -13,9 +13,25 @@
         </CCol>
         <CCol md="12">
             <CRow v-if="!isEmpty($data.societies)">
+                <CCol md="12" class="my-3 d-flex justify-content-between">
+                    <CCol md="3">
+                        <CFormInput
+                            type="text"
+                            placeholder="eg. Search by name"
+                        />           
+                    </CCol>  
+                    <CCol md="2">             
+                        <CFormSelect aria-placeholder="Per Page" v-model="$data.pagination.limit">
+                            <option value="">Per Page</option>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                        </CFormSelect>    
+                    </CCol>               
+                </CCol>                
                 <template v-for="(society,key) in $data.societies" :key="society.id">
                     <CCol md="3" xs="12" class="mb-4">
-                        <CCard>
+                        <CCard class="border-primary">
                             <CCardBody>                            
                                 <CCol md="12" class="d-flex justify-content-end">
                                     <CDropdown color="secondary">
@@ -45,6 +61,7 @@
                                                 size="xl" 
                                                 :id="`switch_society_${society.id}`" 
                                                 v-c-tooltip="'Switch to this society'" 
+                                                :checked="!isEmpty(current_society) ? current_society.id == society.id : false"
                                                 @change="switch_society({ id: society.id })" 
                                             />
                                         </div>
@@ -57,13 +74,19 @@
             </CRow>
             <CCard v-else class="border-primary" style="height: 20em;">
                 <CCardBody class="d-flex align-items-center h-100">
-                    <CCol md="12" class="text-center">
+                    <CCol md="12" class="text-center" v-if="!$data.loaders.fetch">
                         <h5>
                             <CIcon name="cil-ban" />
                             No societies found                        
                         </h5>
                         <CButton color="primary" @click="$data.modals.create = true">Add Society</CButton>
                     </CCol>
+                    <CCol md="12" class="text-center" v-if="$data.loaders.fetch">  
+                        <h5>
+                            <CSpinner size="sm"/>
+                            Loading...                       
+                        </h5>
+                    </CCol>                    
                 </CCardBody>
             </CCard>
         </CCol>
@@ -101,15 +124,17 @@
 </template>
 <script setup lang="ts">
 import { Authenticated } from '../components';
-import { inject, onMounted, reactive, watch } from 'vue';
+import { computed, inject, onMounted, reactive, watch } from 'vue';
 import { CreateSociety } from '../components';
-import { isEmpty, set, times } from 'lodash';
+import { isEmpty, isNull, set, times } from 'lodash';
 import { CCardBody } from '@coreui/vue';
 import { useAuthStore } from '@/stores';
 
-const authStore  = useAuthStore();
-const $api:  any = inject('$api');
-const $data: any = reactive({
+const { auth, update: updateAuthStore }: any = useAuthStore();
+const $api:      any        = inject('$api');
+const $toast:    any        = inject('$toast');
+const $i18n:     any        = inject('$i18n');
+const $data:     any        = reactive({
     societies: {},
     modals: {
         create: Boolean(),
@@ -127,6 +152,7 @@ const $data: any = reactive({
         total:   1
     },
 });
+const current_society = computed( () => !isNull(auth.user.society) ? auth.user.society : {} );
 
 /**
  * Fetch all the socities from the backend
@@ -162,11 +188,6 @@ const fetch = async () => {
  */
 const switch_society = async ({ id }:any) => {
     try {
-        console.log(id);
-        /**
-         * Retrieve the authentication state from the auth store.
-         */
-        const auth = authStore.auth;
 
         /**
          * Send a request to switch the current society.
@@ -176,16 +197,17 @@ const switch_society = async ({ id }:any) => {
          */
         const { data: { user } } = await $api.put(`/societies/${id}/switch`);
 
-        console.log(auth);
+        $toast.success($i18n.t('societies.messages.success.switched',{ name: user.society.name }));
+
         /**
          * Update the authentication state with the new user data.
          */
-        // set(auth, 'user', user);
+        set(auth, 'user', user);
 
         /**
          * Persist the updated authentication state back to the auth store.
          */
-        // authStore.update(auth);
+        updateAuthStore(auth);
     } catch(error) {
         // Catch any errors that may occur and set the loader to false
         $data.loaders.fetch = false;
@@ -199,6 +221,13 @@ onMounted(fetch);
 
 watch(
     () => $data.pagination.current,
+    () => {
+        fetch();
+    }
+)
+
+watch(
+    () => $data.pagination.limit,
     () => {
         fetch();
     }

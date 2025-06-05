@@ -4,3 +4,4 @@ export { CompanyController as CompanyController } from './company/company.contro
 export { ProductController as ProductController } from './product/product.controller'
 export { SocietyController as SocietyController } from './society/society.controller'
 export { SystemController as SystemController } from './system/system.controller'
+export { TransporterController as TransporterController } from './transporter/transporter.controller'

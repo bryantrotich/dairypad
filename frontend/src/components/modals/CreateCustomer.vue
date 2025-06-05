@@ -162,10 +162,14 @@ const getPhoneNumber = ($event: any) => {
 
 const resetForm = () => {
     $data.form = {
-        city:         "",
-        email:        "",
-        name:         "",
-        phone_number: "",
+        address:        "",
+        billing_cycle:  "",
+        contact_person: "",
+        name:           "",
+        phone_number:   "",
+        postal_code:    "",
+        town:           "",
+        type:           "",
     }
 }
 
@@ -174,7 +178,7 @@ const save = async () => {
         // Set the loader to true so that the user knows that the data is being fetched.
         $data.loading = true;
         // Fetch the socities from the backend
-        const { data: { society } } = await $api.post('/customers',cloneDeep($data.form));
+        const { data: { customer } } = await $api.post('/customers',cloneDeep($data.form));
         // Toast show message
         $toast.success($i18n.t('customers.messages.success.created'));    
         // Set the socities to the data fetched from the backend

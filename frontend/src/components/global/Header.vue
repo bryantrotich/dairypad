@@ -44,7 +44,11 @@
         <li class="nav-item py-1">
           <div class="vr h-100 mx-2 text-body text-opacity-75"></div>
         </li>
-        <Account />
+        <CNavItem>
+          <CNavLink @click.prevent="$router.push({ name: 'Profile' })" href="#" :active="$route.name === 'Profile'">
+            <CIcon icon="cil-bell" size="lg"/>
+          </CNavLink>
+        </CNavItem>        
       </CHeaderNav>
     </CContainer>
     <!-- <CContainer class="px-4" fluid>

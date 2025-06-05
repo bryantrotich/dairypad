@@ -4,32 +4,32 @@
             <CRow>
             <CCol md="12" class="d-flex justify-content-between">
                 <div>
-                    <h3>List of customers</h3>
-                    <p>This is a list of registered customers.</p>
+                    <h3>List of transporters</h3>
+                    <p>This is a list of registered transporters.</p>
                 </div>
                 <div>
-                    <CButton color="primary" @click="$data.modals.create = true">Add Customer</CButton>
+                    <CButton color="primary" @click="$data.modals.create = true">Add Transporter</CButton>
                 </div>
             </CCol>
             <CCol md="12">
-                <CRow v-if="!isEmpty($data.customers)">
-                <CCol md="12" class="my-3 d-flex justify-content-between">
-                    <CCol md="3">
-                        <CFormInput
-                            type="text"
-                            placeholder="eg. Search by name"
-                        />           
-                    </CCol>  
-                    <CCol md="2">             
-                        <CFormSelect aria-placeholder="Per Page" v-model="$data.pagination.limit">
-                            <option value="">Per Page</option>
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                        </CFormSelect>    
-                    </CCol>               
-                </CCol>                      
-                    <template v-for="(customer,key) in $data.customers" :key="customer.id">
+                <CRow v-if="!isEmpty($data.transporters)">
+                    <CCol md="12" class="my-3 d-flex justify-content-between">
+                        <CCol md="3">
+                            <CFormInput
+                                type="text"
+                                placeholder="eg. Search by name"
+                            />           
+                        </CCol>  
+                        <CCol md="2">             
+                            <CFormSelect aria-placeholder="Per Page" v-model="$data.pagination.limit">
+                                <option value="">Per Page</option>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                            </CFormSelect>    
+                        </CCol>               
+                    </CCol>                      
+                    <template v-for="(transporter,key) in $data.transporters" :key="transporter.id">
                         <CCol md="3" xs="12" class="mb-4">
                             <CCard class="border-primary">
                                 <CCardBody>                            
@@ -51,10 +51,11 @@
                                         </CDropdown>                                        
                                     </CCol>
                                     <CCol md="12" class="d-flex align-items-center flex-column">
-                                        <CAvatar color="primary" size="xl" class="text-white">{{ customer.name[0] }}</CAvatar>
+                                        <CAvatar color="primary" size="xl" class="text-white">{{ transporter.full_name[0] }}</CAvatar>
                                         <CCol md="12" class="text-center mt-2">
-                                            <h5>{{ customer.name }}</h5>
-                                            <p>{{ customer.phone_number }}</p>
+                                            <h5 class="mb-0">{{ transporter.full_name }}</h5>
+                                            <p class="mb-0">{{ transporter.email }}</p>
+                                            <p class="mb-0">{{ transporter.id_number }}</p>
                                         </CCol>
                                     </CCol>
                                 </CCardBody>
@@ -67,9 +68,9 @@
                         <CCol md="12" class="text-center" v-if="!$data.loaders.fetch">  
                             <h5>
                                 <CIcon name="cil-ban" />
-                                No customers found                        
+                                No transporters found                        
                             </h5>
-                            <CButton color="primary" @click="$data.modals.create = true">Add Customer</CButton>
+                            <CButton color="primary" @click="$data.modals.create = true">Add Transporter</CButton>
                         </CCol>
                         <CCol md="12" class="text-center" v-if="$data.loaders.fetch">  
                             <h5>
@@ -80,7 +81,7 @@
                     </CCardBody>
                 </CCard>
             </CCol>
-            <CCol md="12" class="d-flex justify-content-center py-4" v-if="!isEmpty($data.customers)">
+            <CCol md="12" class="d-flex justify-content-center py-4" v-if="!isEmpty($data.transporters)">
                 <CPagination aria-label="Page navigation example">
                     <CPaginationItem 
                         aria-label="Previous" 
@@ -108,7 +109,7 @@
                 </CPagination>
             </CCol>
             </CRow>
-            <CreateCustomer 
+            <CreateTransporter 
                 :show="$data.modals.create" 
                 @fetch="fetch" 
                 @close="$data.modals.create = $event" 
@@ -117,15 +118,14 @@
     </Authenticated>
 </template>
 <script setup lang="ts">
-import { Authenticated } from '../components';
+import { Authenticated, CreateTransporter } from '../components';
 import { inject, onMounted, reactive, watch } from 'vue';
-import { CreateCustomer } from '../components';
 import { isEmpty, times } from 'lodash';
 import { CCardBody } from '@coreui/vue';
 
 const $api:  any = inject('$api');
 const $data: any = reactive({
-    customers: [],
+    transporters: [],
     modals: {
         create: Boolean(),
         edit:   Boolean(),
@@ -155,9 +155,9 @@ const fetch = async () => {
         // Destructure pagination
         const { current, limit } = $data.pagination;
         // Fetch the socities from the backend
-        const { data: { count, customers, pages } } = await $api.get(`/customers?page=${current}&limit=${limit}`);
+        const { data: { count, transporters, pages } } = await $api.get(`/transporters?page=${current}&limit=${limit}`);
         // Set the socities to the data fetched from the backend
-        $data.customers        = customers;
+        $data.transporters     = transporters;
         // Get number of pages
         $data.pagination.pages = pages;
         // Get total number of societies

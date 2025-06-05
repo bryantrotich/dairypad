@@ -1,15 +1,15 @@
 import { Body, Controller, DefaultValuePipe, Get, HttpException, HttpStatus, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../../guards';
 import { Request, Response } from 'express';
-import { ProductModel } from 'src/database/models';
-import { CreateProductValidation } from 'src/http/validations';
+import { TransporterModel } from 'src/database/models';
+import { CreateCustomerValidation, CreateTransporterValidation } from 'src/http/validations';
 import { get, set } from 'lodash';
 
-@Controller('products')
-export class ProductController {
+@Controller('transporters')
+export class TransporterController {
 
     constructor(
-        private readonly productModel: ProductModel
+        private readonly transporterModel: TransporterModel
     ){}
 
     @UseGuards(AuthGuard)
@@ -35,7 +35,7 @@ export class ProductController {
         try {
             // Fetch auth user
             let user = get(req,'user');
-            
+
             // Set pagination options
             let options = { 
                 offset: (page - 1) * limit,
@@ -44,13 +44,13 @@ export class ProductController {
             };
 
             // Fetch societies with pagination, using limit and offset
-            let [ products, count ] = await this.productModel.findAndCount({ society: user.society },options);
+            let [ transporters, count ] = await this.transporterModel.findAndCount({ society: user.society },options);
 
             // Get pages
             let pages = Math.ceil(count / limit);
             
             // Send the fetched societies as a JSON response with HTTP status 200
-            res.status(HttpStatus.OK).json({ products, count, pages });
+            res.status(HttpStatus.OK).json({ transporters, count, pages });
         } catch (error) {
             // Log the error and throw an HTTP exception with the error message and status
             console.log(error);
@@ -63,14 +63,14 @@ export class ProductController {
     /**
      * Store a newly created society in storage.
      * 
-     * @param {CreateProductValidations} body - The request body containing the society data.
+     * @param {CreateTransporterValidation} body - The request body containing the society data.
      * @param {Request} req - The HTTP request object.
      * @param {Response} res - The HTTP response object.
      * 
      * @returns {Promise<void>} - Returns a Promise that resolves when the response is sent.
      */
     async store(
-        @Body() body: CreateProductValidation,
+        @Body() body: CreateTransporterValidation,
         @Req()  req:  Request,  
         @Res()  res:  Response
     ): Promise<void> {
@@ -82,7 +82,7 @@ export class ProductController {
             set(body,'society',user.society);
 
             // Create a new society in the database
-            let product = await this.productModel.save(body);
+            let product = await this.transporterModel.save(body);
 
             // Send the created society as a JSON response with HTTP status 201 Created
             res.status(HttpStatus.CREATED).json({ product });

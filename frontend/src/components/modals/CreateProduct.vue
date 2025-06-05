@@ -1,5 +1,5 @@
 <template>
-   <CModal backdrop="static" :visible="modal" centered @close="modal = false">
+   <CModal backdrop="static" :visible="modal" alignment="center" @close="modal = false">
         <CForm @submit.prevent="save">
             <CModalHeader>
                 <CModalTitle>Create Product</CModalTitle>
@@ -124,10 +124,11 @@ const getPhoneNumber = ($event: any) => {
 
 const resetForm = () => {
     $data.form = {
-        city:         "",
-        email:        "",
-        name:         "",
-        phone_number: "",
+        description: "",
+        name:        "",
+        price:       0,
+        quantity:    1,
+        status:      "inactive",
     }
 }
 

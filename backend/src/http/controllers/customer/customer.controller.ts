@@ -2,7 +2,8 @@ import { Body, Controller, DefaultValuePipe, Get, HttpException, HttpStatus, Par
 import { AuthGuard } from '../../guards';
 import { Request, Response } from 'express';
 import { CustomerModel } from 'src/database/models';
-import { CreateCustomerValidation, CreateProductValidation } from 'src/http/validations';
+import { CreateCustomerValidation } from 'src/http/validations';
+import { get, set } from 'lodash';
 
 @Controller('customers')
 export class CustomerController {
@@ -32,6 +33,8 @@ export class CustomerController {
         @Res() res: Response
     ) {
         try {
+            // Fetch auth user
+            let user = get(req,'user');
 
             // Set pagination options
             let options = { 
@@ -41,13 +44,13 @@ export class CustomerController {
             };
 
             // Fetch societies with pagination, using limit and offset
-            let [ products, count ] = await this.customerModel.findAndCount({},options);
+            let [ customers, count ] = await this.customerModel.findAndCount({ society: user.society },options);
 
             // Get pages
             let pages = Math.ceil(count / limit);
             
             // Send the fetched societies as a JSON response with HTTP status 200
-            res.status(HttpStatus.OK).json({ products, count, pages });
+            res.status(HttpStatus.OK).json({ customers, count, pages });
         } catch (error) {
             // Log the error and throw an HTTP exception with the error message and status
             console.log(error);
@@ -72,6 +75,11 @@ export class CustomerController {
         @Res()  res:  Response
     ): Promise<void> {
         try {
+            // Fetch auth user
+            let user = get(req,'user');
+
+            // Assign user society
+            set(body,'society',user.society);
 
             // Create a new society in the database
             let product = await this.customerModel.save(body);
