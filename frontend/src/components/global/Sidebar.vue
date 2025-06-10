@@ -21,8 +21,8 @@
     <CNavItem @click.prevent="$router.push({ name: 'Transporters' })" href="#" :active="$route.name === 'Transporters'">
       <CIcon  customClassName="nav-icon" icon="cil-truck"/> Transporters
     </CNavItem>  
-    <CNavItem @click.prevent="$router.push({ name: 'Transporters' })" href="#" :active="$route.name === 'Transporters'">
-      <CIcon  customClassName="nav-icon" icon="cil-truck"/> Expenses
+    <CNavItem @click.prevent="$router.push({ name: 'Expenses' })" href="#" :active="$route.name === 'Expenses'">
+      <CIcon  customClassName="nav-icon" icon="cil-list-rich"/> Expenses
     </CNavItem>            
     <CNavGroup>
       <template #togglerContent>
