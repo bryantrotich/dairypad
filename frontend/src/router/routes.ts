@@ -30,6 +30,16 @@ export default [
         component: () => import('@/pages/Customers.vue')
     },
     {
+        path: '/expenses',
+        name: "Expenses",
+        meta: {
+            title: 'Expenses',
+            auth:  true,
+            state: 1
+        },
+        component: () => import('@/pages/Expenses.vue')
+    },     
+    {
         path: '/societies',
         name: "Societies",
         meta: {
@@ -38,7 +48,7 @@ export default [
             state: 1
         },
         component: () => import('@/pages/Societies.vue')
-    }, 
+    },        
     {
         path: '/transporters',
         name: "Transporters",

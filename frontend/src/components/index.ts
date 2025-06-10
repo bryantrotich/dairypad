@@ -7,6 +7,10 @@ export { default as WidgetsStatsTypeA } from './analytics/WidgetsStatsTypeA.vue'
 export { default as WidgetsStatsTypeD } from './analytics/WidgetsStatsTypeD.vue'
 
 export { default as CreateCustomer } from './modals/CreateCustomer.vue'
+export { default as CreateExpense } from './modals/CreateExpense.vue'
+export { default as CreateExpenseType } from './modals/CreateExpenseType.vue'
 export { default as CreateProduct } from './modals/CreateProduct.vue'
 export { default as CreateSociety } from './modals/CreateSociety.vue'
 export { default as CreateTransporter } from './modals/CreateTransporter.vue'
+
+export { default as ExpenseTypes } from './tabs/ExpenseTypes.vue'
