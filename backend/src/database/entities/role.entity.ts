@@ -1,7 +1,5 @@
 // import { Entity, Property, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { CompanyEntity, UserEntity } from './index';
-import { Seed, SeederContext, SeedEnum, SeedRelation } from 'nestjs-class-seeder';
-import { Faker } from "@faker-js/faker";
 import { Entity, PrimaryKey, Property, ManyToOne, OneToMany, Collection, Cascade } from '@mikro-orm/core';
 import { v4 as uuidv4 } from 'uuid';
 
