@@ -94,9 +94,9 @@ const save = async () => {
         // Set the loader to true so that the user knows that the data is being fetched.
         $data.loading = true;
         // Fetch the socities from the backend
-        const { data: { society } } = await $api.post('/expense-type',cloneDeep($data.form));
+        const { data: { society } } = await $api.post('/expense-types',cloneDeep($data.form));
         // Toast show message
-        $toast.success($i18n.t('expense-type.messages.success.created'));    
+        $toast.success($i18n.t('expensetypes.messages.success.created'));    
         // Set the socities to the data fetched from the backend
         modal.value = false;
         // Fetch data

@@ -1,5 +1,8 @@
 <template>
     <CRow>
+        <CCol md="12" class="d-flex justify-content-end">
+            <CButton color="primary" @click="$data.modals.create = true">Add Expense Type</CButton>
+        </CCol>        
         <CCol md="12">
             <CRow v-if="!isEmpty($data.types)">
                 <CCol md="12" class="my-3 d-flex justify-content-between">
@@ -17,12 +20,25 @@
                             <option value="20">20</option>
                         </CFormSelect>    
                     </CCol>               
-                </CCol>                      
-                <template v-for="(type,key) in $data.types" :key="type.id">
-                    <CCol md="3" xs="12" class="mb-4">
-                        <CCard class="border-primary">
-                            <CCardBody>                            
-                                <CCol md="12" class="d-flex justify-content-end">
+                </CCol>       
+                <CCol md="12">
+                    <CTable>
+                        <CTableHead>
+                            <CTableRow>
+                                <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Name</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Description</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Created On</CTableHeaderCell>
+                                <CTableHeaderCell scope="col"></CTableHeaderCell>
+                            </CTableRow>
+                        </CTableHead>
+                        <CTableBody>
+                            <CTableRow v-for="(type,index) in $data.types" v-if="!isEmpty($data.types)" :key="type.id">
+                                <CTableHeaderCell scope="row">{{ index + 1 }}</CTableHeaderCell>
+                                <CTableDataCell>{{ type.name }}</CTableDataCell>
+                                <CTableDataCell>{{ type.description }}</CTableDataCell>
+                                <CTableDataCell>{{ type.created_at }}</CTableDataCell>
+                                <CTableDataCell>
                                     <CDropdown color="secondary">
                                         <CDropdownToggle component="a" :caret="false">
                                             <CIcon icon="cil-options" />
@@ -37,20 +53,18 @@
                                                 Delete
                                             </CDropdownItem>
                                         </CDropdownMenu>  
-                                    </CDropdown>                                        
-                                </CCol>
-                                <CCol md="12" class="d-flex align-items-center flex-column">
-                                    <CAvatar color="primary" size="xl" class="text-white">{{ transporter.full_name[0] }}</CAvatar>
-                                    <CCol md="12" class="text-center mt-2">
-                                        <h5 class="mb-0">{{ transporter.full_name }}</h5>
-                                        <p class="mb-0">{{ transporter.email }}</p>
-                                        <p class="mb-0">{{ transporter.id_number }}</p>
-                                    </CCol>
-                                </CCol>
-                            </CCardBody>
-                        </CCard>
-                    </CCol>
-                </template>
+                                    </CDropdown>                                      
+                                </CTableDataCell>
+                            </CTableRow>
+                            <CTableRow v-else>
+                                <CTableHeaderCell colspan="6" class="text-center">
+                                    <CIcon name="cil-ban" />
+                                    No expense types found
+                                </CTableHeaderCell>
+                            </CTableRow>
+                        </CTableBody>
+                    </CTable>                       
+                </CCol>                            
             </CRow>
             <template v-else>
                 <CRow style="height: 20em;" class="d-flex align-items-center">
@@ -69,23 +83,6 @@
                     </CCol>       
                 </CRow>          
             </template>
-            <!-- <CCard v-else class="border-primary" style="height: 20em;">
-                <CCardBody class="d-flex align-items-center h-100">
-                    <CCol md="12" class="text-center" v-if="!$data.loaders.fetch">  
-                        <h5>
-                            <CIcon name="cil-ban" />
-                            No expense types found                        
-                        </h5>
-                        <CButton color="primary" @click="$data.modals.create = true">Add Expense Type</CButton>
-                    </CCol>
-                    <CCol md="12" class="text-center" v-if="$data.loaders.fetch">  
-                        <h5>
-                            <CSpinner size="sm"/>
-                            Loading...                       
-                        </h5>
-                    </CCol>                        
-                </CCardBody>
-            </CCard> -->
         </CCol>
         <CCol md="12" class="d-flex justify-content-center py-4" v-if="!isEmpty($data.types)">
             <CPagination aria-label="Page navigation example">
@@ -114,6 +111,11 @@
                 </CPaginationItem>
             </CPagination>
         </CCol>
+        <CreateExpenseType 
+            :show="$data.modals.create" 
+            @fetch="fetch" 
+            @close="$data.modals.create = $event" 
+        />
     </CRow>
 </template>
 <script setup lang="ts">
@@ -136,7 +138,7 @@ const $data: any = reactive({
     },
     pagination: {
         current: 1,
-        limit:   5,
+        limit:   "5",
         pages:   1,
         total:   1
     },
