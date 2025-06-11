@@ -2,46 +2,61 @@
    <CModal backdrop="static" :visible="modal" alignment="center" @close="modal = false">
         <CForm @submit.prevent="save">
             <CModalHeader>
-                <CModalTitle>Create Society</CModalTitle>
+                <CModalTitle>Create Expense</CModalTitle>
             </CModalHeader>
             <CModalBody>
                 <CCol md="12" class="py-2">
                     <CFormInput
                         type="text"
                         label="Name"
-                        placeholder="Eg. Kitale Society"
+                        placeholder="eg. Name"
                         v-model="$data.form.name"
                     />
                     <p v-show="has($data.errors,'name')" class="text-danger mb-0">{{ $data.errors.name }}</p>              
                 </CCol>
                 <CCol md="12" class="py-2">
                     <CFormInput
-                        type="email"
-                        label="Email"
-                        placeholder="eg info@example.com"
-                        v-model="$data.form.email"
+                        type="text"
+                        label="Transaction ID"
+                        placeholder="eg Transaction ID (Optional)"
+                        v-model="$data.form.transaction_id"
                     />
-                    <p v-show="has($data.errors,'email')" class="text-danger mb-0">{{ $data.errors.email }}</p>              
+                    <p v-show="has($data.errors,'transaction_id')" class="text-danger mb-0">{{ $data.errors.transaction_id }}</p>              
                 </CCol>
                 <CCol md="12" class="py-2">
                     <CFormInput
-                        type="text"
-                        label="City"
-                        placeholder="Eg. Kitale"
-                        v-model="$data.form.city"                        
+                        type="date"
+                        label="Date"
+                        placeholder="eg. 01/01/2021"
+                        v-model="$data.form.date"    
+                        :max="moment().format('YYYY-MM-DD')"                    
                     />
-                    <p v-show="has($data.errors,'city')" class="text-danger mb-0">{{ $data.errors.city }}</p>              
+                    <p v-show="has($data.errors,'date')" class="text-danger mb-0">{{ $data.errors.date }}</p>              
                 </CCol> 
                 <CCol md="12" class="py-2">
-                    <label for="phone">Phone Number</label>
-                    <VueTelInput 
-                        @input="getPhoneNumber" 
-                        defaultCountry="KE" 
-                        :inputOptions="{ styleClasses: 'form-control m-0', placeholder: 'Phone Number' }" 
-                        mode="international"
+                    <CFormInput
+                        type="number"
+                        label="Amount"
+                        placeholder="eg. 2000" 
+                        v-model="$data.form.amount"                        
                     />
-                    <p v-show="has($data.errors,'phone_number')" class="text-danger mb-0">{{ $data.errors.phone_number }}</p>              
-                </CCol>                                                
+                    <p v-show="has($data.errors,'amount')" class="text-danger mb-0">{{ $data.errors.amount }}</p>              
+                </CCol> 
+                <CCol md="12" class="py-2">
+                    <CFormSelect label="Expense Type" aria-label="Expense Type" v-model="$data.form.type">
+                        <option>Select Expense Type*</option>
+                        <option v-for="(type,index) in $data.types" :key="index" :value="type.id">{{ type.name }}</option>
+                    </CFormSelect>
+                    <p v-show="has($data.errors,'type')" class="text-danger mb-0">{{ $data.errors.type }}</p>              
+                </CCol> 
+                <CCol md="12" class="py-2">
+                    <CFormTextarea                    
+                        label="Description"
+                        placeholder="eg. Describe this expense (Optional)"
+                        v-model="$data.form.description"                        
+                    />
+                    <p v-show="has($data.errors,'description')" class="text-danger mb-0">{{ $data.errors.description }}</p>              
+                </CCol>                                                                                               
             </CModalBody>
             <CModalFooter>
                 <CButton color="secondary" @click="modal = false">Close</CButton>
@@ -57,9 +72,8 @@
 import { CSpinner } from '@coreui/vue';
 import { cloneDeep, each, has, isEmpty } from 'lodash';
 import { computed, defineEmits, defineProps, inject, reactive, watch } from 'vue';
-import { object, string } from 'yup';
-import { VueTelInput } from 'vue3-tel-input'
-import 'vue3-tel-input/dist/vue3-tel-input.css'
+import { number, object, string } from 'yup';
+import moment from 'moment';
 
 const $api: any   = inject('$api');
 const $toast: any = inject('$toast');
@@ -80,20 +94,25 @@ const $props = defineProps({
 const $data: any = reactive({
     errors: {},
     form: {
-        city:         "",
-        email:        "",
-        name:         "",
-        phone_number: "",
+        amount:         0,
+        date:           "",
+        description:    "",
+        name:           "",
+        transaction_id: "",
+        type:           "",
     },
     loading: Boolean(),
     isDisabled: Boolean(),
+    types: []
 });
 
 const formSchema: any = object().shape({
-    city:         string().required("*City is required"),
-    name:         string().required("*Name is required"),
-    email:        string().email().required("*Email is required"),
-    phone_number: string().required("*Phone Number is required").matches(/^\+\d{3}\s\d{3}\s\d{6}$/, "*Invalid phone number"),
+    amount:         number().min(1,'*Amount must be greater than 0').required("*Amoung is required"),
+    date:           string().required("*Date is required"),
+    description:    string().optional(),
+    name:           string().required("*Name is required"),
+    transaction_id: string().optional(),
+    type:           string().required("*Expense Type is required"),
 });
 
 /**
@@ -110,11 +129,14 @@ const getPhoneNumber = ($event: any) => {
 }
 
 const resetForm = () => {
-    $data.form = {
-        city:         "",
-        email:        "",
-        name:         "",
-        phone_number: "",
+    $data.types = [];
+    $data.form  = {
+        amount:         0,
+        date:           "",
+        description:    "",
+        name:           "",
+        transaction_id: "",
+        type:           "",
     }
 }
 
@@ -123,9 +145,9 @@ const save = async () => {
         // Set the loader to true so that the user knows that the data is being fetched.
         $data.loading = true;
         // Fetch the socities from the backend
-        const { data: { society } } = await $api.post('/societies',cloneDeep($data.form));
+        await $api.post('/expenses',cloneDeep($data.form));
         // Toast show message
-        $toast.success($i18n.t('societies.messages.success.created'));    
+        $toast.success($i18n.t('expenses.messages.success.created'));    
         // Set the socities to the data fetched from the backend
         modal.value = false;
         // Fetch data
@@ -135,6 +157,18 @@ const save = async () => {
         $data.loading = false;
     } finally {
         // Set the loader to false so that the user knows that the data has finished fetching
+        $data.loading = false;
+    }
+}
+
+const fetchExpenseTypes = async () => {
+    try {
+        // Fetch the socities from the backend
+        const { data: { types } } = await $api.get('/expense-types/fetch');
+        // Assign data
+        $data.types = types;
+    } catch(error) {
+        // Catch any errors that may occur and set the loader to false
         $data.loading = false;
     }
 }
@@ -193,6 +227,11 @@ const validateForm = async (field:string) => {
 watch(
     () => $props.show, // Function to watch the 'show' prop
     (value: boolean) => {
+        // Check if 'show' is true
+        if(value) {
+            fetchExpenseTypes();
+        }
+
         // Check if 'show' is false
         if (!value) {
             // Reset the form when 'show' is false

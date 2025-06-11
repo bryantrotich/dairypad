@@ -1,76 +1,94 @@
 <template>
     <CRow>
+        <CCol md="12" class="d-flex justify-content-end">
+            <CButton color="primary" @click="$data.modals.create = true">Add Expense</CButton>
+        </CCol>        
         <CCol md="12">
-    <CRow v-if="!isEmpty($data.transporters)">
-        <CCol md="12" class="my-3 d-flex justify-content-between">
-            <CCol md="3">
-                <CFormInput
-                    type="text"
-                    placeholder="eg. Search by name"
-                />           
-            </CCol>  
-            <CCol md="2">             
-                <CFormSelect aria-placeholder="Per Page" v-model="$data.pagination.limit">
-                    <option value="">Per Page</option>
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                </CFormSelect>    
-            </CCol>               
-        </CCol>                      
-        <template v-for="(transporter,key) in $data.transporters" :key="transporter.id">
-            <CCol md="3" xs="12" class="mb-4">
-                <CCard class="border-primary">
-                    <CCardBody>                            
-                        <CCol md="12" class="d-flex justify-content-end">
-                            <CDropdown color="secondary">
-                                <CDropdownToggle component="a" :caret="false">
-                                    <CIcon icon="cil-options" />
-                                </CDropdownToggle>
-                                <CDropdownMenu class="py-0">
-                                    <CDropdownItem href="#" class="text-primary">
-                                        <CIcon icon="cil-pencil" />
-                                        Edit
-                                    </CDropdownItem>
-                                    <CDropdownItem href="#" class="text-danger">
-                                        <CIcon icon="cil-trash" />
-                                        Delete
-                                    </CDropdownItem>
-                                </CDropdownMenu>  
-                            </CDropdown>                                        
-                        </CCol>
-                        <CCol md="12" class="d-flex align-items-center flex-column">
-                            <CAvatar color="primary" size="xl" class="text-white">{{ transporter.full_name[0] }}</CAvatar>
-                            <CCol md="12" class="text-center mt-2">
-                                <h5 class="mb-0">{{ transporter.full_name }}</h5>
-                                <p class="mb-0">{{ transporter.email }}</p>
-                                <p class="mb-0">{{ transporter.id_number }}</p>
-                            </CCol>
-                        </CCol>
-                    </CCardBody>
-                </CCard>
-            </CCol>
-        </template>
-    </CRow>
-    <CCard v-else class="border-primary" style="height: 20em;">
-        <CCardBody class="d-flex align-items-center h-100">
-            <CCol md="12" class="text-center" v-if="!$data.loaders.fetch">  
-                <h5>
-                    <CIcon name="cil-ban" />
-                    No transporters found                        
-                </h5>
-                <CButton color="primary" @click="$data.modals.create = true">Add Transporter</CButton>
-            </CCol>
-            <CCol md="12" class="text-center" v-if="$data.loaders.fetch">  
-                <h5>
-                    <CSpinner size="sm"/>
-                    Loading...                       
-                </h5>
-            </CCol>                        
-        </CCardBody>
-    </CCard>
+            <CRow v-if="!isEmpty($data.expenses)">
+                <CCol md="12" class="my-3 d-flex justify-content-between">
+                    <CCol md="3">
+                        <CFormInput
+                            type="text"
+                            placeholder="eg. Search by name"
+                        />           
+                    </CCol>  
+                    <CCol md="2">             
+                        <CFormSelect aria-placeholder="Per Page" v-model.number="$data.pagination.limit">
+                            <option value="">Per Page</option>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                        </CFormSelect>    
+                    </CCol>               
+                </CCol>       
+                <CCol md="12">
+                    <CTable>
+                        <CTableHead>
+                            <CTableRow>
+                                <CTableHeaderCell scope="col">#</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Name</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Amount</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Date</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Expense Type</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Created On</CTableHeaderCell>
+                                <CTableHeaderCell scope="col"></CTableHeaderCell>
+                            </CTableRow>
+                        </CTableHead>
+                        <CTableBody>
+                            <CTableRow v-for="(expense,index) in $data.expenses" v-if="!isEmpty($data.expenses)" :key="expense.id">
+                                <CTableHeaderCell scope="row">{{ index + 1 }}</CTableHeaderCell>
+                                <CTableDataCell>{{ expense.name }}</CTableDataCell>
+                                <CTableDataCell>{{ expense.amount }}</CTableDataCell>
+                                <CTableDataCell>{{ expense.date }}</CTableDataCell>
+                                <CTableDataCell><CBadge color="primary" class="p-2">{{ expense.type.name }}</CBadge></CTableDataCell>
+                                <CTableDataCell>{{ expense.created_at }}</CTableDataCell>
+                                <CTableDataCell>
+                                    <CDropdown color="secondary">
+                                        <CDropdownToggle component="a" :caret="false">
+                                            <CIcon icon="cil-options" />
+                                        </CDropdownToggle>
+                                        <CDropdownMenu class="py-0">
+                                            <CDropdownItem href="#" class="text-primary">
+                                                <CIcon icon="cil-pencil" />
+                                                Edit
+                                            </CDropdownItem>
+                                            <CDropdownItem href="#" class="text-danger">
+                                                <CIcon icon="cil-trash" />
+                                                Delete
+                                            </CDropdownItem>
+                                        </CDropdownMenu>  
+                                    </CDropdown>                                      
+                                </CTableDataCell>
+                            </CTableRow>
+                            <CTableRow v-else>
+                                <CTableHeaderCell colspan="6" class="text-center">
+                                    <CIcon name="cil-ban" />
+                                    No expense found
+                                </CTableHeaderCell>
+                            </CTableRow>
+                        </CTableBody>
+                    </CTable>                       
+                </CCol>                            
+            </CRow>
+            <template v-else>
+                <CRow style="height: 20em;" class="d-flex align-items-center">
+                    <CCol md="12" class="text-center" v-if="!$data.loaders.fetch">  
+                        <h5>
+                            <CIcon name="cil-ban" />
+                            No expense found                        
+                        </h5>
+                        <CButton color="primary" @click="$data.modals.create = true">Add Expense</CButton>
+                    </CCol>
+                    <CCol md="12" class="text-center" v-if="$data.loaders.fetch">  
+                        <h5>
+                            <CSpinner size="sm"/>
+                            Loading...                       
+                        </h5>
+                    </CCol>       
+                </CRow>          
+            </template>
         </CCol>
-        <CCol md="12" class="d-flex justify-content-center py-4" v-if="!isEmpty($data.transporters)">
+        <CCol md="12" class="d-flex justify-content-center py-4" v-if="!isEmpty($data.types)">
             <CPagination aria-label="Page navigation example">
                 <CPaginationItem 
                     aria-label="Previous" 
@@ -97,13 +115,17 @@
                 </CPaginationItem>
             </CPagination>
         </CCol>
+        <CreateExpense
+            :show="$data.modals.create" 
+            @fetch="fetch" 
+            @close="$data.modals.create = $event" 
+        />
     </CRow>
 </template>
 <script setup lang="ts">
 import { CreateExpense } from '../';
 import { inject, onMounted, reactive, watch } from 'vue';
 import { isEmpty, times } from 'lodash';
-import { CCardBody } from '@coreui/vue';
 
 const $api:  any = inject('$api');
 const $data: any = reactive({
