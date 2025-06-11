@@ -28,5 +28,11 @@ export default defineConfig({
     seeder: {
         path: './dist/src/database/seeders',
         pathTs: './src/database/seeders',
-    }
+    },
+    metadataCache: {
+        enabled: true,
+        options: {
+            cacheDir: './src/database/cache', // Path for cache files
+        },
+    },
 })
