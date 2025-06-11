@@ -14,3 +14,4 @@ export { default as CreateSociety } from './modals/CreateSociety.vue'
 export { default as CreateTransporter } from './modals/CreateTransporter.vue'
 
 export { default as ExpenseTypes } from './tabs/ExpenseTypes.vue'
+export { default as Expenses } from './tabs/Expenses.vue'
