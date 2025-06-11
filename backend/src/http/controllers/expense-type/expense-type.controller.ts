@@ -6,7 +6,8 @@ import { ExpenseTypeModel } from "src/database/models";
 import { CreateExpenseTypeValidation } from "src/http/validations";
 
 @Controller('expense-types')
-export class ExpenseTypeController{
+export class ExpenseTypeController {
+
     constructor(
         private readonly expenseTypeModel: ExpenseTypeModel
     ){}
@@ -43,13 +44,13 @@ export class ExpenseTypeController{
             };
 
             // Fetch societies with pagination, using limit and offset
-            let [ transporters, count ] = await this.expenseTypeModel.findAndCount({ society: user.society },options);
+            let [ types, count ] = await this.expenseTypeModel.findAndCount({ society: user.society },options);
 
             // Get pages
             let pages = Math.ceil(count / limit);
             
             // Send the fetched societies as a JSON response with HTTP status 200
-            res.status(HttpStatus.OK).json({ transporters, count, pages });
+            res.status(HttpStatus.OK).json({ types, count, pages });
         } catch (error) {
             // Log the error and throw an HTTP exception with the error message and status
             console.log(error);
@@ -91,4 +92,35 @@ export class ExpenseTypeController{
             throw new HttpException(error.message, error.status);
         }
     }
+
+    @UseGuards(AuthGuard)
+    @Get('fetch')
+    /**
+     * Fetch all expense types.
+     * 
+     * @param {Request} req - The HTTP request object.
+     * @param {Response} res - The HTTP response object.
+     * 
+     * @returns {Promise<void>} - Returns a Promise that resolves when the response is sent.
+     */
+    async fetch(
+        @Req()  req:  Request,  
+        @Res()  res:  Response
+    ): Promise<void> {
+        try {
+
+            // Fetch auth user
+            let user = get(req,'user');
+
+            // Fetch all expense types
+            let types = await this.expenseTypeModel.find({ society: user.society });
+
+            // Send the fetched expense types as a JSON response with HTTP status 200
+            res.status(HttpStatus.OK).json({ types });
+        } catch (error) {
+            // Log the error and throw an HTTP exception with the error message and status
+            console.log(error);
+            throw new HttpException(error.message, error.status);
+        }
+    }    
 }
