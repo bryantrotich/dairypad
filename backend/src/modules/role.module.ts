@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common';
-import { RoleModel } from '../database/models';
-import { RoleEntity } from '../database/entities';
+import { RoleModel, RolePermissionModel } from '../database/models';
+import { RoleEntity, RolePermissionEntity } from '../database/entities';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 
 @Module({
-  exports:[RoleModel],
-  imports: [
-    MikroOrmModule.forFeature([RoleEntity])
-  ],
-  providers: [RoleModel],
+  exports:   [RoleModel,RolePermissionModel],
+  imports:   [MikroOrmModule.forFeature([RoleEntity,RolePermissionEntity])],
+  providers: [RoleModel,RolePermissionModel],
 })
 export class RoleModule {}

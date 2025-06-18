@@ -1,4 +1,3 @@
-export { CompanyModule as CompanyModule } from './company.module';
 export { CustomerModule as CustomerModule } from './customer.module';
 export { ExpenseModule as ExpenseModule } from './expense.module';
 export { ExpenseTypeModule as ExpenseTypeModule } from './expense-type.module';
