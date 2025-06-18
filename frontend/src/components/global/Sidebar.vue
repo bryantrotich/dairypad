@@ -54,11 +54,9 @@
       </CNavItem>                                       
     </CNavGroup>   
     <CNavTitle>Management</CNavTitle>
-    <CNavGroup :visible="$route.name == 'Profile' || $route.name == 'Company' || $route.name == 'System'" compact>
-      <template #togglerContent>
-        <CIcon  customClassName="nav-icon" icon="cil-list"/> Roles & Permissions
-      </template>
-    </CNavGroup>     
+    <CNavItem @click.prevent="$router.push({ name: 'RolesPermissions' })" href="#" :active="$route.name === 'RolesPermissions'">
+      <CIcon  customClassName="nav-icon" icon="cil-shield-alt"/> Roles & Permissions
+    </CNavItem>       
     <CNavGroup :visible="$route.name == 'Profile' || $route.name == 'Company' || $route.name == 'System'" compact>
       <template #togglerContent>
         <CIcon  customClassName="nav-icon" icon="cil-cog"/> Account
