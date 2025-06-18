@@ -1,5 +1,5 @@
 import { Entity, PrimaryKey, Property, OneToMany, Collection } from '@mikro-orm/core';
-import { ProductEntity, UserEntity } from './index';
+import { PermissionEntity, ProductEntity, RoleEntity, UserEntity } from './index';
 import { v4 as uuidv4 } from 'uuid';
 
 @Entity({ tableName: 'societies' })
@@ -28,6 +28,20 @@ export class SocietyEntity {
     product => product.society
   )
   products: Collection<ProductEntity[]>  
+
+  @OneToMany(
+    () => PermissionEntity, 
+    entity => entity.society,
+    { lazy: true }
+  )
+  permissions: Collection<PermissionEntity[]>    
+
+  @OneToMany(
+    () => RoleEntity, 
+    entity => entity.society,
+    { lazy: true }
+  )
+  roles: Collection<RoleEntity[]>      
 
   @OneToMany(
     () => UserEntity, 

@@ -1,5 +1,5 @@
 import { Entity, PrimaryKey, Property, ManyToOne, Cascade, HiddenProps } from '@mikro-orm/core';
-import { CompanyEntity, RoleEntity, SocietyEntity } from './index';
+import { RoleEntity, SocietyEntity } from './index';
 import { Seed, SeederContext, SeedRelation } from 'nestjs-class-seeder';
 import { Faker } from "@faker-js/faker";
 import * as bcrypt from 'bcrypt';
@@ -22,19 +22,11 @@ export class UserEntity {
   @Property({ nullable: true })
   address: string;
 
-  @ManyToOne(
-    () => CompanyEntity, 
-    { 
-      nullable:            false,
-      cascade:             [Cascade.ALL], 
-      eager:               true,
-      referenceColumnName: 'id',
-    }
-  )
-  company: CompanyEntity;
-
   @Property()
   first_name: string;
+
+  @Property({ nullable: true, type: 'boolean', default: false })
+  is_admin: string;  
 
   @Property()
   last_name: string;

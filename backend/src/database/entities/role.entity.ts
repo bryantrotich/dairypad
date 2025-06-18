@@ -1,7 +1,8 @@
-// import { Entity, Property, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
-import { CompanyEntity, UserEntity } from './index';
-import { Entity, PrimaryKey, Property, ManyToOne, OneToMany, Collection, Cascade } from '@mikro-orm/core';
+import { SocietyEntity, UserEntity } from './index';
+import { Entity, PrimaryKey, Property, ManyToOne, OneToMany, Collection, Cascade, ManyToMany } from '@mikro-orm/core';
 import { v4 as uuidv4 } from 'uuid';
+import moment from 'moment';
+import { PermissionEntity } from './permission.entity';
 
 @Entity({ tableName: 'roles' })
 export class RoleEntity {
@@ -10,23 +11,27 @@ export class RoleEntity {
   id: string = uuidv4();
 
   @ManyToOne(
-    () => CompanyEntity, 
+    () => SocietyEntity, 
     { 
-      cascade:             [Cascade.ALL], 
-      referenceColumnName:      'id',
+      nullable:            false,
+      cascade:             [Cascade.PERSIST, Cascade.REMOVE], 
+      fieldName:           'society_id',
+      referenceColumnName: 'id',
     }
   )
-  company: CompanyEntity;
+  society: SocietyEntity;  
 
+  @ManyToMany({
+    entity: () => PermissionEntity,
+    mappedBy: entity => entity.roles,
+    type: Collection<PermissionEntity>
+  })
+  permissions = new Collection<PermissionEntity>(this)
+  
   @Property({
     unique: true
   })
   name: string;
-
-  @Property({
-    nullable: false,
-  })
-  state: number;
 
   @OneToMany(
     () => UserEntity, 
@@ -34,7 +39,11 @@ export class RoleEntity {
   )
   users: Collection<UserEntity[]>  
 
-  @Property({ nullable: true, onCreate: () => new Date() })
+  @Property({ 
+      serializer: (value) => moment(value).format('lll'), 
+      nullable: true, 
+      onCreate: () => new Date() 
+  })
   created_at: Date; // Automatically set on creation
 
   @Property({ nullable: true, onCreate: () => new Date(), onUpdate: () => new Date() })
