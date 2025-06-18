@@ -68,7 +68,17 @@ export default [
             state: 1
         },
         component: () => import('@/pages/Products.vue')
-    },        
+    },  
+    {
+        path: '/roles-permissions',
+        name: "RolesPermissions",
+        meta: {
+            title: 'Roles & Permissions',
+            auth:  true,
+            state: 1
+        },
+        component: () => import('@/pages/RolesPermissions.vue')
+    },            
     {
         path: '/company',
         name: "Company",
