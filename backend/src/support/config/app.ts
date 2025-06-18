@@ -1,5 +1,30 @@
 import { registerAs } from "@nestjs/config"
 
 export default registerAs('app',() => ({
-    env: process.env
+    env: process.env,
+    modules:[
+        { name: "Societies", value: "societies" },
+        { name: "Users", value: "users" },
+        { name: "Employees", value: "employees" },
+        { name: "Farmers", value: "farmers" },
+        { name: "Transporters", value: "transporters" },
+        { name: "Deliveries", value: "deliveries" },
+        { name: "Expense Types", value: "expense_types" },
+        { name: "Expenses", value: "expenses" },
+        { name: "Roles", value: "roles" },
+        { name: "Permissions", value: "permissions" },
+        { name: "Customers", value: "customers" },
+        { name: "Sales", value: "sales" },
+        { name: "Products", value: "products" },
+    ],
+    permissions: [
+        { name: "CREATE_{MODULE}", value: "create_{MODULE}" },
+        { name: "READ_{MODULE}",   value: "read_{MODULE}"   },
+        { name: "UPDATE_{MODULE}", value: "update_{MODULE}" },
+        { name: "DELETE_{MODULE}", value: "delete_{MODULE}" },
+    ],
+    roles: [
+        { name: "Admin",    value: "admin" },
+        { name: "Employee", value: "employee" },
+    ]
 }));
