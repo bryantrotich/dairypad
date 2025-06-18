@@ -1,19 +1,62 @@
 import type { EntityManager } from '@mikro-orm/core';
 import { Seeder } from '@mikro-orm/seeder';
 import { v4 as uuidv4 } from 'uuid';
+import { cloneDeep } from 'lodash';
 
 export class RoleSeeder extends Seeder {
 
+  private readonly roles = [
+    { name: "Admin", value: "admin" },
+    { name: "Super", value: "super" },
+  ]
   async run(em: EntityManager): Promise<void> {
     try{
-      let company: any = await em.findOne('CompanyEntity', { email: 'info@hostgram.co.ke' }); 
+      
+      let society: any     = await em.findOne('SocietyEntity', { email: 'info@society.co.ke' }); 
+      let permissions: any = (await society.permissions.load()).toJSON();
 
-      await em.insertMany('RoleEntity', [ 
-        { id: uuidv4(), company_id: company.id, name: 'admin',  state: 1, created_at: new Date(), updated_at: new Date() },
-        { id: uuidv4(), company_id: company.id, name: 'client', state: 3, created_at: new Date(), updated_at: new Date() },
-        { id: uuidv4(), company_id: company.id, name: 'staff',  state: 2, created_at: new Date(), updated_at: new Date() },
-        { id: uuidv4(), company_id: company.id, name: 'super',  state: 0, created_at: new Date(), updated_at: new Date() }
-      ])
+      let roles: any       = cloneDeep(this.roles).map( 
+        (role) => ({
+          id:         uuidv4(),
+          society_id: society.id,
+          name:       role.value,
+          created_at: new Date(), 
+          updated_at: new Date()
+        })
+      );
+
+      await em.insertMany('RoleEntity', roles);
+
+      let role_permissions = cloneDeep(roles).map(
+        (role) => {
+          switch(role.name){
+            case 'admin':
+              return permissions.filter( 
+                permission => permission.module != 'societies' 
+              ).map(
+                (permission) => ({ 
+                  id:            uuidv4(), 
+                  role_id:       role.id, 
+                  permission_id: permission.id, 
+                  created_at:    new Date(), 
+                  updated_at:    new Date() 
+                })
+              )
+            case 'super':
+              return permissions.map(
+                (permission) => ({ 
+                  id:            uuidv4(),
+                  role_id:       role.id, 
+                  permission_id: permission.id, 
+                  created_at:    new Date(), 
+                  updated_at:    new Date() 
+                })
+              );
+          }
+        }
+      ).flat();
+
+      await em.insertMany('RolePermissionEntity', role_permissions);
 
       console.log('Role seeder executed successfully');
 

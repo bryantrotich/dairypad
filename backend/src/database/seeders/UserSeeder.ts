@@ -6,24 +6,21 @@ export class UserSeeder extends Seeder {
 
   async run(em: EntityManager): Promise<void> {
     try{
-      // Find the company by email
-      let company: any = await em.findOne('CompanyEntity', { email: 'info@hostgram.co.ke' }); 
+      let society: any = await em.findOne('SocietyEntity', { email: 'info@society.co.ke' }, { populate: ['email','roles'], populateWhere: { roles: { name: 'super' } }  }); 
 
-      // Fetch role
-      let role: any = await em.findOne('RoleEntity', { state: 0 }); 
-      
       // Generate random string for token
       let randomstring = require("randomstring");
 
-      let user = await em.create('UserEntity', {
-        company,
+      await em.create('UserEntity', {
         first_name:       'Test',
         last_name:        'Person',
         email:            'info@hostgram.co.ke',
+        is_admin:          true,
         phone:            '254712345678',
         email_verified_at: new Date(),
         password:          await bcrypt.hash('password', 10),
-        role,
+        role:              society.roles[0],
+        society,
         token:             randomstring.generate(100),
       });
 
