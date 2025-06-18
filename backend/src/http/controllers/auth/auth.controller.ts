@@ -3,7 +3,7 @@ import { AuthGuard } from '../../guards';
 import { Request, Response } from 'express';
 import { AuthService, MailService } from 'src/http/services';
 import { LoginValidation, RegisterValidation, ResetAuthValidation, SetPasswordValidation, UpdateAuthValidation } from 'src/support/validation';
-import { CompanyModel, RoleModel, UserModel } from 'src/database/models';
+import { RoleModel, SocietyModel, UserModel } from 'src/database/models';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { get, has, isEmpty, isNull, pick, omit, set } from 'lodash';
@@ -22,10 +22,10 @@ export class AuthController {
 
     constructor(
         private authService: AuthService,
-        private companyModel: CompanyModel,
         private configService: ConfigService,
         private mailService: MailService,
         private roleModel: RoleModel,
+        private societyModel: SocietyModel,
         private userModel: UserModel
     ){}
 
@@ -79,7 +79,7 @@ export class AuthController {
             let randomstring = require("randomstring");
             
             // Get company and role IDs
-            let [ { id: companyId } ] = await this.companyModel.find('*');
+            let [ { id: companyId } ] = await this.societyModel.find('*');
             let { id: roleId }        = await this.roleModel.findOneOrFail({ name: 'client'});
 
             // Hash password and generate token
@@ -294,11 +294,11 @@ export class AuthController {
     } 
 
     @UseGuards(AuthGuard)
-    @Post('company')
+    @Post('society')
     async updateCompany(@Body() body: any, @Req() req: Request,  @Res() res: Response) {
         let { company } = get(req,'user');
         try{
-            let updatedCompany = await this.companyModel.nativeUpdate(company.id,body);
+            let updatedCompany = await this.societyModel.nativeUpdate(company.id,body);
             return res.status(HttpStatus.OK).json({updatedCompany});
         } catch(err) {
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR);

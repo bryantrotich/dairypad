@@ -3,7 +3,7 @@ import { AuthGuard } from '../../guards';
 import { Request, Response } from 'express';
 import { AuthService, MailService } from 'src/http/services';
 import { RegisterValidation } from 'src/support/validation';
-import { CompanyModel, RoleModel, UserModel } from 'src/database/models';
+import { RoleModel, UserModel } from 'src/database/models';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { isEmpty, isNull } from 'lodash';
