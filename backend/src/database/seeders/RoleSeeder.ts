@@ -19,7 +19,8 @@ export class RoleSeeder extends Seeder {
         (role) => ({
           id:         uuidv4(),
           society_id: society.id,
-          name:       role.value,
+          name:       role.name,
+          is_super:   role.name == 'Super' ? true : false,
           created_at: new Date(), 
           updated_at: new Date()
         })
@@ -30,7 +31,7 @@ export class RoleSeeder extends Seeder {
       let role_permissions = cloneDeep(roles).map(
         (role) => {
           switch(role.name){
-            case 'admin':
+            case 'Admin':
               return permissions.filter( 
                 permission => permission.module != 'societies' 
               ).map(
@@ -42,7 +43,7 @@ export class RoleSeeder extends Seeder {
                   updated_at:    new Date() 
                 })
               )
-            case 'super':
+            case 'Super':
               return permissions.map(
                 (permission) => ({ 
                   id:            uuidv4(),

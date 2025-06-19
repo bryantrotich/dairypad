@@ -15,7 +15,7 @@ export class UserSeeder extends Seeder {
         first_name:       'Test',
         last_name:        'Person',
         email:            'info@hostgram.co.ke',
-        is_admin:          true,
+        is_super:          true,
         phone:            '254712345678',
         email_verified_at: new Date(),
         password:          await bcrypt.hash('password', 10),
