@@ -1,10 +1,10 @@
 export { default as CustomerModel } from './customer.model';
 export { default as ExpenseModel } from './expense.model';
 export { default as ExpenseTypeModel } from './expense-type.model';
-export { default as RoleModel } from './role.model';
-export { default as RolePermissionModel } from './role-permission.model';
 export { default as PermissionModel } from './permission.model';
 export { default as ProductModel } from './product.model';
+export { default as RoleModel } from './role.model';
+export { default as RolePermissionModel } from './role-permission.model';
 export { default as SocietyModel } from './society.model';
 export { default as TransporterModel } from './transporter.model';
 export { default as UserModel } from './user.model';
