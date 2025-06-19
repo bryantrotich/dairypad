@@ -1,20 +1,19 @@
-import { Body, Controller, DefaultValuePipe, Get, Global, HttpException, HttpStatus, Logger, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Delete, Get, Global, HttpException, HttpStatus, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../../guards';
 import { Request, Response } from 'express';
-import { PermissionModel, RolePermissionModel } from 'src/database/models';
+import { RoleModel, RolePermissionModel } from 'src/database/models';
 import { CreateCustomerValidation, CreateRoleValidation } from 'src/http/validations';
-import { cloneDeep, get, set } from 'lodash';
+import { cloneDeep, get, omit, set } from 'lodash';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 
 @Global()
-@Controller('permissions')
-export class PermissionController {
-
-    private readonly logger = new Logger(PermissionController.name);
+@Controller('roles')
+export class RoleController {
 
     constructor(
-        private readonly permissionModel: PermissionModel,
+        private readonly roleModel: RoleModel,
+        private readonly rolePermissionModel: RolePermissionModel,
         private readonly configService: ConfigService
     ){}
 
@@ -43,25 +42,30 @@ export class PermissionController {
             let user = get(req,'user');
 
             // Set pagination options
-            let options = { 
+            let options: any = { 
                 offset: (page - 1) * limit,
                 limit,
+                populate: ['permissions'],
                 orderBy: { [order_by]: order} 
             };
 
             // Fetch societies with pagination, using limit and offset
-            let [ permissions, count ] = await this.permissionModel.findAndCount({ society: user.society },options);
+            let [ roles, count ] = await this.roleModel.findAndCount({ is_super: false, society: user.society },options);
 
-            let modules                = this.configService.get('app.modules')
+            // Refactor roles
+            // roles                = roles.map( role => ({ ...omit(role,['permissions']), permissions_count: role.permissions.length }) );
+
+            // Get modules
+            let modules          = this.configService.get('app.modules')
 
             // Get pages
             let pages = Math.ceil(count / limit);
             
             // Send the fetched societies as a JSON response with HTTP status 200
-            res.status(HttpStatus.OK).json({ modules, permissions, count, pages });
+            res.status(HttpStatus.OK).json({ modules, roles, count, pages });
         } catch (error) {
             // Log the error and throw an HTTP exception with the error message and status
-            this.logger.error(error);
+            console.log(error);
             throw new HttpException(error.message, error.status);
         }
     }
@@ -90,45 +94,50 @@ export class PermissionController {
             set(body,'society',user.society);
 
             // Create a new society in the database
-            let role = await this.permissionModel.save(body);
+            let role: any        = await this.roleModel.save({ name: body.name, society: user.society });
+
+            // Assign permissions
+            body.permissions = cloneDeep(body.permissions).map( permission => ({ id: uuidv4(), role_id: role.id, permission_id: permission }) );
+
+            // Assign role to user
+            await this.rolePermissionModel.insertMany(body.permissions)
 
             // Send the created society as a JSON response with HTTP status 201 Created
             res.status(HttpStatus.CREATED).json({});
+
         } catch (error) {
             // Log the error and throw an HTTP exception with the error message and status
-            this.logger.error(error);
+            console.log(error);
             throw new HttpException(error.message, error.status);
         }
     }
 
+
     @UseGuards(AuthGuard)
-    @Get('fetch')
+    @Delete(':id/delete')
     /**
-     * Fetch all expense types.
+     * Delete a role by its ID.
      * 
+     * @param {string} id - The ID of the role to delete.
      * @param {Request} req - The HTTP request object.
      * @param {Response} res - The HTTP response object.
      * 
      * @returns {Promise<void>} - Returns a Promise that resolves when the response is sent.
      */
-    async fetch(
-        @Req()  req:  Request,  
-        @Res()  res:  Response
-    ): Promise<void> {
-        try {
-            // Fetch auth user
-            let user    = get(req,'user');
+    async delete(
+        @Param('id') id: string,
+        @Req() req: Request,  
+        @Res() res: Response
+    ) {
+        try{
+            // Delete the role from the database
+            await this.roleModel.nativeDelete(id);
 
-            // Fetch all expense types
-            let permissions = await this.permissionModel.find({ module: { $ne: 'societies'}, society: user.society });
-
-            // Send the fetched expense types as a JSON response with HTTP status 200
-            res.status(HttpStatus.OK).json({ permissions });
-        } catch (error) {
+            // Send the response with HTTP status 200
+            return res.status(HttpStatus.OK).json({});
+        } catch(error) {
             // Log the error and throw an HTTP exception with the error message and status
-            this.logger.error(error);
             throw new HttpException(error.message, error.status);
         }
-    }       
-
+    }
 }
