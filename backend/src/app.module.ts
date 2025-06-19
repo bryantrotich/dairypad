@@ -1,14 +1,14 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ApiMiddleware, RedirectIfAuthMiddleware } from './http/middlewares';
 import { JwtStrategy, LocalStrategy } from './http/guards';
-import { AuthController, CustomerController, ExpenseController, ExpenseTypeController, ProductController, SocietyController, SystemController, TransporterController } from './http/controllers';
+import { AuthController, CustomerController, ExpenseController, ExpenseTypeController, PermissionController, ProductController, RoleController, SocietyController, SystemController, TransporterController } from './http/controllers';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { AppConfig } from './support/config';
 import { AuthService } from './http/services';
-import { MailModule, UserModule, RoleModule, SocietyModule, ProductModule, CustomerModule, TransporterModule, ExpenseTypeModule, ExpenseModule } from './modules';
+import { MailModule, UserModule, RoleModule, SocietyModule, ProductModule, CustomerModule, TransporterModule, ExpenseTypeModule, ExpenseModule, PermissionModule } from './modules';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path'
 import { MikroOrmModule } from '@mikro-orm/nestjs';
@@ -55,13 +55,25 @@ import { MySqlDriver } from '@mikro-orm/mysql';
     }),
     MailModule,   
     CustomerModule,
+    PermissionModule,
     ProductModule,
     RoleModule,
     SocietyModule,
     TransporterModule,
     UserModule 
   ],
-  controllers: [AuthController, CustomerController, ExpenseController, ExpenseTypeController, ProductController, SocietyController, SystemController, TransporterController],
+  controllers: [
+    AuthController, 
+    CustomerController, 
+    ExpenseController, 
+    ExpenseTypeController, 
+    PermissionController,
+    ProductController, 
+    RoleController,
+    SocietyController, 
+    SystemController, 
+    TransporterController
+  ],
   providers:   [AuthService,JwtStrategy,LocalStrategy],
 })  
 
