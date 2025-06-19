@@ -3,6 +3,7 @@ export { ExpenseModule as ExpenseModule } from './expense.module';
 export { ExpenseTypeModule as ExpenseTypeModule } from './expense-type.module';
 export { MailModule as MailModule } from './mail.module';
 export { RoleModule as RoleModule } from './role.module';
+export { PermissionModule as PermissionModule } from './permission.module';
 export { ProductModule as ProductModule } from './product.module';
 export { SocietyModule as SocietyModule } from './society.module';
 export { TransporterModule as TransporterModule } from './transporter.module';
