@@ -114,15 +114,16 @@
           "length": 36,
           "mappedType": "string"
         },
-        "society_id": {
-          "name": "society_id",
-          "type": "varchar(36)",
+        "is_super": {
+          "name": "is_super",
+          "type": "tinyint(1)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
-          "length": 36,
-          "mappedType": "string"
+          "nullable": true,
+          "length": 1,
+          "default": "false",
+          "mappedType": "boolean"
         },
         "name": {
           "name": "name",
@@ -132,6 +133,16 @@
           "primary": false,
           "nullable": false,
           "length": 255,
+          "mappedType": "string"
+        },
+        "society_id": {
+          "name": "society_id",
+          "type": "varchar(36)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 36,
           "mappedType": "string"
         },
         "created_at": {
@@ -159,16 +170,6 @@
       "indexes": [
         {
           "columnNames": [
-            "society_id"
-          ],
-          "composite": false,
-          "keyName": "roles_society_id_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "columnNames": [
             "name"
           ],
           "composite": false,
@@ -176,6 +177,16 @@
           "constraint": true,
           "primary": false,
           "unique": true
+        },
+        {
+          "columnNames": [
+            "society_id"
+          ],
+          "composite": false,
+          "keyName": "roles_society_id_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
         },
         {
           "keyName": "PRIMARY",
@@ -1227,8 +1238,8 @@
           "length": 255,
           "mappedType": "string"
         },
-        "is_admin": {
-          "name": "is_admin",
+        "is_super": {
+          "name": "is_super",
           "type": "tinyint(1)",
           "unsigned": false,
           "autoincrement": false,

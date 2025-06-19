@@ -1,13 +1,13 @@
 import { Migration } from '@mikro-orm/migrations';
 
-export class Migration20250618123516 extends Migration {
+export class Migration20250618154229 extends Migration {
 
   override async up(): Promise<void> {
     this.addSql(`create table \`societies\` (\`id\` varchar(36) not null, \`email\` varchar(255) null, \`city\` varchar(255) not null, \`name\` varchar(255) not null, \`phone_number\` varchar(255) null, \`country_code\` varchar(255) null default '254', \`created_at\` datetime null, \`updated_at\` datetime null, primary key (\`id\`)) default character set utf8mb4 engine = InnoDB;`);
 
-    this.addSql(`create table \`roles\` (\`id\` varchar(36) not null, \`society_id\` varchar(36) not null, \`name\` varchar(255) not null, \`created_at\` datetime null, \`updated_at\` datetime null, primary key (\`id\`)) default character set utf8mb4 engine = InnoDB;`);
-    this.addSql(`alter table \`roles\` add index \`roles_society_id_index\`(\`society_id\`);`);
+    this.addSql(`create table \`roles\` (\`id\` varchar(36) not null, \`is_super\` tinyint(1) null default false, \`name\` varchar(255) not null, \`society_id\` varchar(36) not null, \`created_at\` datetime null, \`updated_at\` datetime null, primary key (\`id\`)) default character set utf8mb4 engine = InnoDB;`);
     this.addSql(`alter table \`roles\` add unique \`roles_name_unique\`(\`name\`);`);
+    this.addSql(`alter table \`roles\` add index \`roles_society_id_index\`(\`society_id\`);`);
 
     this.addSql(`create table \`products\` (\`id\` varchar(36) not null, \`description\` longtext not null, \`name\` varchar(255) not null, \`price\` int not null, \`quantity\` int not null, \`society_id\` varchar(36) not null, \`status\` enum('active', 'inactive') not null, \`created_at\` datetime null, \`updated_at\` datetime null, primary key (\`id\`)) default character set utf8mb4 engine = InnoDB;`);
     this.addSql(`alter table \`products\` add index \`products_society_id_index\`(\`society_id\`);`);
@@ -32,7 +32,7 @@ export class Migration20250618123516 extends Migration {
     this.addSql(`create table \`transporters\` (\`id\` varchar(36) not null, \`email\` varchar(255) not null, \`first_name\` varchar(255) not null, \`id_number\` varchar(255) not null, \`last_name\` varchar(255) not null, \`surname\` varchar(255) not null, \`phone_number\` varchar(255) not null, \`society_id\` varchar(36) not null, \`status\` enum('active', 'deceased', 'dormant', 'exited') not null, \`vehicle_registration\` varchar(255) not null, \`vehicle_type\` varchar(255) not null, \`created_at\` datetime null, \`updated_at\` datetime null, primary key (\`id\`)) default character set utf8mb4 engine = InnoDB;`);
     this.addSql(`alter table \`transporters\` add index \`transporters_society_id_index\`(\`society_id\`);`);
 
-    this.addSql(`create table \`users\` (\`id\` varchar(36) not null, \`address\` varchar(255) null, \`first_name\` varchar(255) not null, \`is_admin\` tinyint(1) null default false, \`last_name\` varchar(255) not null, \`email\` varchar(255) not null, \`country_code\` varchar(255) null default '254', \`email_verified_at\` datetime null, \`gender\` varchar(255) null default '', \`image\` varchar(255) null, \`password\` varchar(255) not null, \`phone_number\` varchar(255) null, \`role_id\` varchar(36) not null, \`society_id\` varchar(36) null, \`token\` varchar(255) not null, \`created_at\` datetime null, \`updated_at\` datetime null, \`deleted_at\` datetime null, primary key (\`id\`)) default character set utf8mb4 engine = InnoDB;`);
+    this.addSql(`create table \`users\` (\`id\` varchar(36) not null, \`address\` varchar(255) null, \`first_name\` varchar(255) not null, \`is_super\` tinyint(1) null default false, \`last_name\` varchar(255) not null, \`email\` varchar(255) not null, \`country_code\` varchar(255) null default '254', \`email_verified_at\` datetime null, \`gender\` varchar(255) null default '', \`image\` varchar(255) null, \`password\` varchar(255) not null, \`phone_number\` varchar(255) null, \`role_id\` varchar(36) not null, \`society_id\` varchar(36) null, \`token\` varchar(255) not null, \`created_at\` datetime null, \`updated_at\` datetime null, \`deleted_at\` datetime null, primary key (\`id\`)) default character set utf8mb4 engine = InnoDB;`);
     this.addSql(`alter table \`users\` add unique \`users_email_unique\`(\`email\`);`);
     this.addSql(`alter table \`users\` add index \`users_role_id_index\`(\`role_id\`);`);
     this.addSql(`alter table \`users\` add index \`users_society_id_index\`(\`society_id\`);`);
