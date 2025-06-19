@@ -4,6 +4,7 @@ import { Seed, SeederContext, SeedRelation } from 'nestjs-class-seeder';
 import { Faker } from "@faker-js/faker";
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
+import moment from 'moment';
 
 export enum Gender {
   MALE = "male",
@@ -26,7 +27,7 @@ export class UserEntity {
   first_name: string;
 
   @Property({ nullable: true, type: 'boolean', default: false })
-  is_admin: string;  
+  is_super: boolean;  
 
   @Property()
   last_name: string;
@@ -84,7 +85,11 @@ export class UserEntity {
   @Property({ hidden: true })
   token: string;
 
-  @Property({ nullable: true, onCreate: () => new Date() })
+  @Property({ 
+      serializer: (value) => moment(value).format('lll'), 
+      nullable: true, 
+      onCreate: () => new Date() 
+  })
   created_at: Date; // Automatically set on creation
 
   @Property({ nullable: true, onCreate: () => new Date(), onUpdate: () => new Date() })

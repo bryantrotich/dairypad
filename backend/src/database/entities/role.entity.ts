@@ -9,6 +9,21 @@ export class RoleEntity {
   
   @PrimaryKey({ type: 'uuid' })
   id: string = uuidv4();
+  
+  @Property({ nullable: true, type: 'boolean', default: false })
+  is_super: boolean;  
+
+  @Property({
+    unique: true
+  })
+  name: string;
+  
+  @ManyToMany({
+    entity: () => PermissionEntity,
+    mappedBy: entity => entity.roles,
+    type: Collection<PermissionEntity>,
+  })
+  permissions = new Collection<PermissionEntity>(this)
 
   @ManyToOne(
     () => SocietyEntity, 
@@ -21,18 +36,6 @@ export class RoleEntity {
   )
   society: SocietyEntity;  
 
-  @ManyToMany({
-    entity: () => PermissionEntity,
-    mappedBy: entity => entity.roles,
-    type: Collection<PermissionEntity>
-  })
-  permissions = new Collection<PermissionEntity>(this)
-  
-  @Property({
-    unique: true
-  })
-  name: string;
-
   @OneToMany(
     () => UserEntity, 
     user => user.role 
@@ -40,9 +43,9 @@ export class RoleEntity {
   users: Collection<UserEntity[]>  
 
   @Property({ 
-      serializer: (value) => moment(value).format('lll'), 
-      nullable: true, 
-      onCreate: () => new Date() 
+    serializer: (value) => moment(value).format('lll'), 
+    nullable: true, 
+    onCreate: () => new Date() 
   })
   created_at: Date; // Automatically set on creation
 

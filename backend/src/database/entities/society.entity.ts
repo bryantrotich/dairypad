@@ -1,6 +1,7 @@
 import { Entity, PrimaryKey, Property, OneToMany, Collection } from '@mikro-orm/core';
 import { PermissionEntity, ProductEntity, RoleEntity, UserEntity } from './index';
 import { v4 as uuidv4 } from 'uuid';
+import moment from 'moment';
 
 @Entity({ tableName: 'societies' })
 export class SocietyEntity {
@@ -49,7 +50,11 @@ export class SocietyEntity {
   )
   users: Collection<UserEntity[]>  
 
-  @Property({ nullable: true, onCreate: () => new Date() })
+  @Property({ 
+      serializer: (value) => moment(value).format('lll'), 
+      nullable: true, 
+      onCreate: () => new Date() 
+  })
   created_at: Date; // Automatically set on creation
 
   @Property({ nullable: true, onCreate: () => new Date(), onUpdate: () => new Date() })
