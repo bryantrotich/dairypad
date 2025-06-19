@@ -1,6 +1,7 @@
 import {
     CanActivate,
     ExecutionContext,
+    Global,
     Inject,
     Injectable,
     UnauthorizedException,
@@ -12,7 +13,6 @@ import {
   import { pick, set } from 'lodash';
 import { UserModel } from 'src/database/models';
 import { ConfigService } from '@nestjs/config';
-
 @Injectable()
 export class AuthGuard implements CanActivate {
 
