@@ -1,10 +1,10 @@
 <template>
     <CRow>
         <CCol md="12" class="d-flex justify-content-end">
-            <CButton color="primary" @click="$data.modals.create = true">Add Expense</CButton>
+            <CButton color="primary" @click="$data.modals.create = true">Add Role</CButton>
         </CCol>        
         <CCol md="12">
-            <CRow v-if="!isEmpty($data.expenses)">
+            <CRow v-if="!isEmpty($data.roles)">
                 <CCol md="12" class="my-3 d-flex justify-content-between">
                     <CCol md="3">
                         <CFormInput
@@ -27,32 +27,28 @@
                             <CTableRow>
                                 <CTableHeaderCell scope="col">#</CTableHeaderCell>
                                 <CTableHeaderCell scope="col">Name</CTableHeaderCell>
-                                <CTableHeaderCell scope="col">Amount</CTableHeaderCell>
-                                <CTableHeaderCell scope="col">Date</CTableHeaderCell>
-                                <CTableHeaderCell scope="col">Expense Type</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Permissions</CTableHeaderCell>
                                 <CTableHeaderCell scope="col">Created On</CTableHeaderCell>
                                 <CTableHeaderCell scope="col"></CTableHeaderCell>
                             </CTableRow>
                         </CTableHead>
                         <CTableBody>
-                            <CTableRow v-for="(expense,index) in $data.expenses" v-if="!isEmpty($data.expenses)" :key="expense.id">
+                            <CTableRow v-for="(role,index) in $data.roles" v-if="!isEmpty($data.roles)" :key="role.id">
                                 <CTableHeaderCell scope="row">{{ index + 1 }}</CTableHeaderCell>
-                                <CTableDataCell>{{ expense.name }}</CTableDataCell>
-                                <CTableDataCell>{{ expense.amount }}</CTableDataCell>
-                                <CTableDataCell>{{ expense.date }}</CTableDataCell>
-                                <CTableDataCell><CBadge color="primary" class="p-2">{{ expense.type.name }}</CBadge></CTableDataCell>
-                                <CTableDataCell>{{ expense.created_at }}</CTableDataCell>
+                                <CTableDataCell>{{ role.name }}</CTableDataCell>
+                                <CTableDataCell>{{ role.permissions.length}}</CTableDataCell>
+                                <CTableDataCell>{{ role.created_at }}</CTableDataCell>
                                 <CTableDataCell>
                                     <CDropdown color="secondary">
                                         <CDropdownToggle component="a" :caret="false">
                                             <CIcon icon="cil-options" />
                                         </CDropdownToggle>
                                         <CDropdownMenu class="py-0">
-                                            <CDropdownItem href="#" class="text-primary">
+                                            <CDropdownItem href="#" class="text-primary" @click="edit(role.id)">
                                                 <CIcon icon="cil-pencil" />
                                                 Edit
                                             </CDropdownItem>
-                                            <CDropdownItem href="#" class="text-danger">
+                                            <CDropdownItem href="#" class="text-danger" @click="remove(role.id)">
                                                 <CIcon icon="cil-trash" />
                                                 Delete
                                             </CDropdownItem>
@@ -63,7 +59,7 @@
                             <CTableRow v-else>
                                 <CTableHeaderCell colspan="6" class="text-center">
                                     <CIcon name="cil-ban" />
-                                    No expense found
+                                    No roles found
                                 </CTableHeaderCell>
                             </CTableRow>
                         </CTableBody>
@@ -75,9 +71,9 @@
                     <CCol md="12" class="text-center" v-if="!$data.loaders.fetch">  
                         <h5>
                             <CIcon name="cil-ban" />
-                            No expense found                        
+                            No roles found                        
                         </h5>
-                        <CButton color="primary" @click="$data.modals.create = true">Add Expense</CButton>
+                        <CButton color="primary" @click="$data.modals.create = true">Add Role</CButton>
                     </CCol>
                     <CCol md="12" class="text-center" v-if="$data.loaders.fetch">  
                         <h5>
@@ -88,7 +84,7 @@
                 </CRow>          
             </template>
         </CCol>
-        <CCol md="12" class="d-flex justify-content-center py-4" v-if="!isEmpty($data.types)">
+        <CCol md="12" class="d-flex justify-content-center py-4" v-if="!isEmpty($data.roles)">
             <CPagination aria-label="Page navigation example">
                 <CPaginationItem 
                     aria-label="Previous" 
@@ -115,7 +111,7 @@
                 </CPaginationItem>
             </CPagination>
         </CCol>
-        <CreateExpense
+        <CreateRole
             :show="$data.modals.create" 
             @fetch="fetch" 
             @close="$data.modals.create = $event" 
@@ -123,22 +119,25 @@
     </CRow>
 </template>
 <script setup lang="ts">
-import { CreateExpense } from '../';
+import { CreateRole } from '../';
 import { inject, onMounted, reactive, watch } from 'vue';
 import { isEmpty, times } from 'lodash';
 
-const $api:  any = inject('$api');
-const $data: any = reactive({
-    expenses: [],
+const $api:   any = inject('$api');
+const $toast: any = inject('$toast');
+const $swal: any  = inject('$swal');
+const $data:  any = reactive({
+    roles: [],
     modals: {
         create: Boolean(),
         edit:   Boolean(),
     },
     loaders: {
         create: Boolean(),
+        delete: Boolean(),
         edit:   Boolean(),
         fetch:  Boolean(),
-        type:  Boolean(),
+        type:   Boolean(),
     },
     pagination: {
         current: 1,
@@ -149,8 +148,13 @@ const $data: any = reactive({
 });
 
 /**
- * Fetch all the socities from the backend
- * 
+ * Fetch all the roles from the backend
+ *
+ * This function fetches all the roles from the backend and assigns them to the
+ * $data.roles property. It also sets the loader to true while the data is being
+ * fetched and false when the data has finished fetching. The function can throw
+ * an error if the data cannot be fetched.
+ *
  * @return {void}
  */
 const fetch = async () => {
@@ -159,13 +163,13 @@ const fetch = async () => {
         $data.loaders.fetch = true;
         // Destructure pagination
         const { current, limit } = $data.pagination;
-        // Fetch the socities from the backend
-        const { data: { count, expenses, pages } } = await $api.get(`/expenses?page=${current}&limit=${limit}`);
-        // Set the socities to the data fetched from the backend
-        $data.expenses         = expenses;
+        // Fetch the roles from the backend
+        const { data: { count, roles, pages } } = await $api.get(`/roles?page=${current}&limit=${limit}`);
+        // Set the roles to the data fetched from the backend
+        $data.roles            = roles;
         // Get number of pages
         $data.pagination.pages = pages;
-        // Get total number of societies
+        // Get total number of roles
         $data.pagination.total = count;
     } catch(error) {
         // Catch any errors that may occur and set the loader to false
@@ -174,6 +178,43 @@ const fetch = async () => {
         // Set the loader to false so that the user knows that the data has finished fetching
         $data.loaders.fetch = false;
     }
+}
+
+const remove = async (id: string) => {
+    try {
+
+        // Show a confirmation dialog
+        const { isConfirmed } = await $swal.fire({
+            title: 'Are you sure?',
+            text:  'You are about to delete this role. This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        });
+
+        // If the user clicks cancel, return
+        if( !isConfirmed ) return;
+
+        // Set the loader to true so that the user knows that the data is being fetched.
+        $data.loaders.delete = true;
+
+        // Fetch the socities from the backend
+        await $api.delete(`roles/${id}/delete`);
+
+        // Toast show message
+        $toast.success('Role deleted successfully');
+
+        // Fetch new roles
+        fetch();
+    } catch(error) {
+        // Catch any errors that may occur and set the loader to false
+        $data.loaders.delete = false;
+    } finally {
+        // Set the loader to false so that the user knows that the data has finished fetching
+        $data.loaders.delete = false;
+    }    
 }
 
 onMounted(fetch);

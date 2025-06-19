@@ -4,7 +4,7 @@
             <CButton color="primary" @click="$data.modals.create = true">Add Permission</CButton>
         </CCol>        
         <CCol md="12">
-            <CRow v-if="!isEmpty($data.expenses)">
+            <CRow v-if="!isEmpty($data.permissions)">
                 <CCol md="12" class="my-3 d-flex justify-content-between">
                     <CCol md="3">
                         <CFormInput
@@ -27,21 +27,19 @@
                             <CTableRow>
                                 <CTableHeaderCell scope="col">#</CTableHeaderCell>
                                 <CTableHeaderCell scope="col">Name</CTableHeaderCell>
-                                <CTableHeaderCell scope="col">Amount</CTableHeaderCell>
-                                <CTableHeaderCell scope="col">Date</CTableHeaderCell>
-                                <CTableHeaderCell scope="col">Expense Type</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Description</CTableHeaderCell>
+                                <CTableHeaderCell scope="col">Module</CTableHeaderCell>
                                 <CTableHeaderCell scope="col">Created On</CTableHeaderCell>
                                 <CTableHeaderCell scope="col"></CTableHeaderCell>
                             </CTableRow>
                         </CTableHead>
                         <CTableBody>
-                            <CTableRow v-for="(expense,index) in $data.expenses" v-if="!isEmpty($data.expenses)" :key="expense.id">
+                            <CTableRow v-for="(permission,index) in $data.permissions" v-if="!isEmpty($data.permissions)" :key="permission.id">
                                 <CTableHeaderCell scope="row">{{ index + 1 }}</CTableHeaderCell>
-                                <CTableDataCell>{{ expense.name }}</CTableDataCell>
-                                <CTableDataCell>{{ expense.amount }}</CTableDataCell>
-                                <CTableDataCell>{{ expense.date }}</CTableDataCell>
-                                <CTableDataCell><CBadge color="primary" class="p-2">{{ expense.type.name }}</CBadge></CTableDataCell>
-                                <CTableDataCell>{{ expense.created_at }}</CTableDataCell>
+                                <CTableDataCell>{{ permission.name }}</CTableDataCell>
+                                <CTableDataCell>{{ permission.permissions }}</CTableDataCell>
+                                <CTableDataCell><CBadge color="primary" class="p-2">{{ permission.module}}</CBadge></CTableDataCell>
+                                <CTableDataCell>{{ permission.created_at }}</CTableDataCell>
                                 <CTableDataCell>
                                     <CDropdown color="secondary">
                                         <CDropdownToggle component="a" :caret="false">
@@ -88,7 +86,7 @@
                 </CRow>          
             </template>
         </CCol>
-        <CCol md="12" class="d-flex justify-content-center py-4" v-if="!isEmpty($data.types)">
+        <CCol md="12" class="d-flex justify-content-center py-4" v-if="!isEmpty($data.permissions)">
             <CPagination aria-label="Page navigation example">
                 <CPaginationItem 
                     aria-label="Previous" 
@@ -129,7 +127,7 @@ import { isEmpty, times } from 'lodash';
 
 const $api:  any = inject('$api');
 const $data: any = reactive({
-    expenses: [],
+    permissions: [],
     modals: {
         create: Boolean(),
         edit:   Boolean(),
@@ -142,7 +140,7 @@ const $data: any = reactive({
     },
     pagination: {
         current: 1,
-        limit:   5,
+        limit:   10,
         pages:   1,
         total:   1
     },
@@ -160,9 +158,9 @@ const fetch = async () => {
         // Destructure pagination
         const { current, limit } = $data.pagination;
         // Fetch the socities from the backend
-        const { data: { count, expenses, pages } } = await $api.get(`/permissions?page=${current}&limit=${limit}`);
+        const { data: { count, permissions, pages } } = await $api.get(`/permissions?page=${current}&limit=${limit}`);
         // Set the socities to the data fetched from the backend
-        $data.expenses         = expenses;
+        $data.permissions      = permissions;
         // Get number of pages
         $data.pagination.pages = pages;
         // Get total number of societies
