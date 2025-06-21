@@ -3,8 +3,8 @@ export default [
         path: '',
         name: "Overview",
         meta: {
-            title:     'Overview',
-            auth:  true,
+            title:      'Overview',
+            auth:        true,
             permissions: ['READ_OVERVIEW']
         },
         component: () => import('@/pages/Overview.vue')
