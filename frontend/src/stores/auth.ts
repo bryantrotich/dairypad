@@ -1,13 +1,16 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { isNull } from 'lodash';
+import { groupBy, isNull } from 'lodash';
 import { useStorage } from '@vueuse/core';
+import { useSidebarStore } from './sidebar';
+import { group } from 'console';
 
 export const useAuthStore = defineStore('auth', () => {
 
+    const storeLinks        = useSidebarStore();
     const { VITE_APP_NAME } = import.meta.env;
     const data              = ref({});
-
+    
     const auth: any         = useStorage(
         `${VITE_APP_NAME.replaceAll(' ','').toLowerCase()}`, 
         data, 
@@ -20,6 +23,21 @@ export const useAuthStore = defineStore('auth', () => {
         },
     );
     
+    const links             = computed( 
+        () => storeLinks.map( 
+            group => {
+                return {
+                    ...group,
+                    children: group.children.filter(
+                        (link: any) => link.permissions.every( 
+                            (permission: any) => auth.value.permissions.includes(permission) 
+                        )        
+                    ) 
+                };
+            }
+        ) 
+    );
+
     /**
      * Updates the authentication data in local storage
      * 
@@ -62,6 +80,6 @@ export const useAuthStore = defineStore('auth', () => {
         auth.value = {}
     }
 
-    return { auth: auth.value, login, logout, update }
+    return { auth: auth.value, links: links.value, login, logout, update }
 
 });
