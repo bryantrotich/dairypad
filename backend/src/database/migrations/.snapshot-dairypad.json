@@ -145,6 +145,17 @@
           "length": 36,
           "mappedType": "string"
         },
+        "state": {
+          "name": "state",
+          "type": "tinyint",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": null,
+          "default": "0",
+          "mappedType": "enum"
+        },
         "created_at": {
           "name": "created_at",
           "type": "datetime",
