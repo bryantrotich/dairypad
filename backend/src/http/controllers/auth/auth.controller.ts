@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpException, HttpStatus, InternalServerErrorEx
 import { AuthGuard } from '../../guards';
 import { Request, Response } from 'express';
 import { AuthService, MailService } from 'src/http/services';
-import { LoginValidation, RegisterValidation, ResetAuthValidation, SetPasswordValidation, UpdateAuthValidation } from 'src/support/validation';
+import { LoginValidation, RegisterValidation, ResetAuthValidation, UpdateAuthValidation } from 'src/support/validation';
 import { RoleModel, SocietyModel, UserModel } from 'src/database/models';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
@@ -13,6 +13,8 @@ import { ControllerException } from 'src/http/exceptions/controller.exception';
 import { Express } from 'express'
 import { NotFoundInterceptor } from 'src/http/interceptors';
 import moment from 'moment';
+import { NotFoundError } from '@mikro-orm/core';
+import { SetPasswordValidation } from 'src/http/validations';
 
 @Controller('auth')
 @UseInterceptors(NotFoundInterceptor)
@@ -106,23 +108,27 @@ export class AuthController {
     }
 
     @Put('verify/:token')
-    async verify(@Param('token') token: string, @Res() res: Response){
+    async verify(
+        @Param('token') token: string, 
+        @Res() res: Response
+    ){
         try{
             let { id }       = await this.userModel.findOneOrFail({ token });
 
             let randomstring = require("randomstring");
+            let update_data  = { email_verified_at: moment().format('YYYY-MM-DD HH:mm:ss'), token: randomstring.generate(100) }
             
-            await this.userModel.nativeUpdate({ id }, { email_verified_at: moment().format('YYYY-MM-DD HH:mm:ss'), token: randomstring.generate(100) });
+            await this.userModel.nativeUpdate({ id }, update_data);
 
-            return res.status(HttpStatus.OK).json({});
+            return res.status(HttpStatus.OK).json({ token: update_data.token });
 
-        } catch(err) {
+        } catch(error) {
 
-            if( err.constructor.name == "EntityNotFoundError"){
+            if( error instanceof NotFoundError){
                 throw new NotFoundException();
             }
 
-            throw new InternalServerErrorException(); 
+            throw new HttpException(error.message, error.status); 
         }
     }
 
@@ -140,11 +146,11 @@ export class AuthController {
 
         } catch(error) {
             console.log(error);
-            if( error.constructor.name == "EntityNotFoundError"){
+            if( error instanceof NotFoundError ){
                 throw new NotFoundException();
             }
 
-            throw new InternalServerErrorException(); 
+            throw new HttpException(error.message, error.status); 
         }
     }
 
@@ -232,13 +238,6 @@ export class AuthController {
         }
     }
 
-    @UseGuards(AuthGuard)
-    @Get('company')
-    getCompany(@Req() req: Request,  @Res() res: Response) {
-        let { company } = get(req,'user');
-        res.status(HttpStatus.OK).json({company});
-    } 
-
     @Post('reset')
     async reset(
         @Body() body: ResetAuthValidation,
@@ -268,7 +267,7 @@ export class AuthController {
         }
     } 
 
-    @Post(':code/password')
+    @Post('set/:code/password')
     async setPassword(
         @Param('code') code: string,
         @Body()  body: SetPasswordValidation,
@@ -281,7 +280,7 @@ export class AuthController {
             let randomstring = require("randomstring");
 
             // Hash password
-            let password     = await bcrypt.hashSync(body.new_password, parseInt(this.configService.get('app.SALT_LENGTH')));
+            let password     = await bcrypt.hashSync(body.password, parseInt(this.configService.get('app.env.SALT_LENGTH')));
 
             // Update token and password
             await this.userModel.nativeUpdate({ token: code },{ password, token: randomstring.generate(100) });

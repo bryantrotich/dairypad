@@ -1,5 +1,6 @@
 export { AuthController as AuthController } from './auth/auth.controller'
 export { CustomerController as CustomerController } from './customer/customer.controller'
+export { EmployeeController as EmployeeController } from './employee/employee.controller'
 export { ExpenseController as ExpenseController } from './expense/expense.controller'
 export { ExpenseTypeController as ExpenseTypeController } from './expense-type/expense-type.controller'
 export { PermissionController as PermissionController } from './permission/permission.controller'

@@ -1,25 +1,23 @@
-import { Body, Controller, DefaultValuePipe, Get, Global, HttpException, HttpStatus, Logger, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Delete, Get, HttpException, HttpStatus, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard, PermissionsGuard } from '../../guards';
 import { Request, Response } from 'express';
-import { PermissionModel, RolePermissionModel } from 'src/database/models';
-import { CreateCustomerValidation, CreatePermissionValidation, CreateRoleValidation } from 'src/http/validations';
-import { cloneDeep, get, set } from 'lodash';
-import { ConfigService } from '@nestjs/config';
-import { v4 as uuidv4 } from 'uuid';
+import { RoleModel, UserModel } from 'src/database/models';
+import { CreateEmployeeValidation } from 'src/http/validations';
+import { get, set } from 'lodash';
 import { Permissions } from 'src/support/gates';
-
+import * as bcrypt from 'bcrypt';
+import { MailService } from 'src/http/services';
+@Controller('employees')
 @UseGuards(AuthGuard,PermissionsGuard)
-@Controller('permissions')
-export class PermissionController {
-
-    private readonly logger = new Logger(PermissionController.name);
+export class EmployeeController {
 
     constructor(
-        private readonly permissionModel: PermissionModel,
-        private readonly configService: ConfigService
+        private readonly mailService: MailService,
+        private readonly roleModel: RoleModel,
+        private readonly userModel: UserModel
     ){}
 
-    @Permissions('READ_PERMISSIONS')
+    @Permissions('READ_EMPLOYEES')
     @Get('')
     /**
      * Index method to fetch societies with pagination.
@@ -44,92 +42,106 @@ export class PermissionController {
             let user = get(req,'user');
 
             // Set pagination options
-            let options = { 
+            let options: any = { 
                 offset: (page - 1) * limit,
                 limit,
+                populate: ['role'],
                 orderBy: { [order_by]: order} 
             };
 
             // Fetch societies with pagination, using limit and offset
-            let [ permissions, count ] = await this.permissionModel.findAndCount({ society: user.society },options);
-
-            let modules                = this.configService.get('app.modules')
+            let [ employees, count ] = await this.userModel.findAndCount({ role: { state: { $eq: 0 }, society: user.society } },options);
 
             // Get pages
             let pages = Math.ceil(count / limit);
             
             // Send the fetched societies as a JSON response with HTTP status 200
-            res.status(HttpStatus.OK).json({ modules, permissions, count, pages });
+            res.status(HttpStatus.OK).json({ employees, count, pages });
         } catch (error) {
             // Log the error and throw an HTTP exception with the error message and status
-            this.logger.error(error);
+            console.log(error);
             throw new HttpException(error.message, error.status);
         }
     }
 
-    @Permissions('CREATE_PERMISSIONS')
+    @Permissions('CREATE_EMPLOYEES')
     @Post('')
     /**
      * Store a newly created society in storage.
      * 
-     * @param {CreatePermissionValidation} body - The request body containing the society data.
+     * @param {CreateCustomerValidation} body - The request body containing the society data.
      * @param {Request} req - The HTTP request object.
      * @param {Response} res - The HTTP response object.
      * 
      * @returns {Promise<void>} - Returns a Promise that resolves when the response is sent.
      */
     async store(
-        @Body() body: CreatePermissionValidation,
+        @Body() body: CreateEmployeeValidation,
         @Req()  req:  Request,  
         @Res()  res:  Response
     ): Promise<void> {
         try {
             // Fetch auth user
-            let user = get(req,'user');
+            let auth_user = get(req,'user');
+
+            // Generate random string for token
+            let randomstring = require("randomstring");
+                       
+            // Fetch role
+            let role: any    = await this.roleModel.findOne({ id: body.role });
 
             // Assign user society
-            set(body,'society',user.society);
+            set(body,'society',auth_user.society);
 
+            // Assign role
+            set(body,'role',role);        
+
+            // Set token
+            set(body,'token',randomstring.generate(100));
+
+            // Set password
+            set(body,'password',await bcrypt.hash('password', 10));
+        
             // Create a new society in the database
-            let role = await this.permissionModel.save(body);
+            let user = await this.userModel.save(body);
+
+            // Send confirmation email
+            await this.mailService.welcome(user);
 
             // Send the created society as a JSON response with HTTP status 201 Created
             res.status(HttpStatus.CREATED).json({});
         } catch (error) {
             // Log the error and throw an HTTP exception with the error message and status
-            this.logger.error(error);
+            console.log(error);
             throw new HttpException(error.message, error.status);
         }
     }
 
-    @Permissions('READ_PERMISSIONS')
-    @Get('fetch')
+    @Permissions('DELETE_EMPLOYEES')
+    @Delete(':id/delete')
     /**
-     * Fetch all expense types.
+     * Delete a role by its ID.
      * 
+     * @param {string} id - The ID of the role to delete.
      * @param {Request} req - The HTTP request object.
      * @param {Response} res - The HTTP response object.
      * 
      * @returns {Promise<void>} - Returns a Promise that resolves when the response is sent.
      */
-    async fetch(
-        @Req()  req:  Request,  
-        @Res()  res:  Response
-    ): Promise<void> {
-        try {
-            // Fetch auth user
-            let user    = get(req,'user');
+    async delete(
+        @Param('id') id: string,
+        @Res() res: Response
+    ) {
+        try{
+            // Delete the role from the database
+            await this.userModel.nativeDelete(id);
 
-            // Fetch all expense types
-            let permissions = await this.permissionModel.find({ module: { $ne: 'societies'}, society: user.society });
-
-            // Send the fetched expense types as a JSON response with HTTP status 200
-            res.status(HttpStatus.OK).json({ permissions });
-        } catch (error) {
+            // Send the response with HTTP status 200
+            return res.status(HttpStatus.OK).json({});
+        } catch(error) {
             // Log the error and throw an HTTP exception with the error message and status
-            this.logger.error(error);
             throw new HttpException(error.message, error.status);
         }
-    }       
+    }    
 
 }

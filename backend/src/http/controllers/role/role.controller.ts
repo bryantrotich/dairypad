@@ -1,23 +1,26 @@
-import { Body, Controller, DefaultValuePipe, Delete, Get, Global, HttpException, HttpStatus, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '../../guards';
+import { Body, Controller, DefaultValuePipe, Delete, Get, Global, HttpException, HttpStatus, Logger, Param, Post, Put, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { AuthGuard, PermissionsGuard } from '../../guards';
 import { Request, Response } from 'express';
-import { RoleModel, RolePermissionModel } from 'src/database/models';
-import { CreateCustomerValidation, CreateRoleValidation } from 'src/http/validations';
-import { cloneDeep, get, omit, set } from 'lodash';
+import { PermissionModel, RoleModel, RolePermissionModel } from 'src/database/models';
+import { CreateRoleValidation, UpdateRoleValidation } from 'src/http/validations';
+import { cloneDeep, difference, get, set } from 'lodash';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
+import { Permissions } from 'src/support/gates';
 
-@Global()
+@UseGuards(AuthGuard,PermissionsGuard)
 @Controller('roles')
 export class RoleController {
+    private readonly logger = new Logger(RoleController.name);
 
     constructor(
+        private readonly permissionModel: PermissionModel,
         private readonly roleModel: RoleModel,
         private readonly rolePermissionModel: RolePermissionModel,
         private readonly configService: ConfigService
     ){}
 
-    @UseGuards(AuthGuard)
+    @Permissions('READ_ROLES')
     @Get('')
     /**
      * Index method to fetch societies with pagination.
@@ -70,7 +73,7 @@ export class RoleController {
         }
     }
 
-    @UseGuards(AuthGuard)
+    @Permissions('CREATE_ROLES')
     @Post('')
     /**
      * Store a newly created society in storage.
@@ -112,8 +115,92 @@ export class RoleController {
         }
     }
 
+    @Permissions('READ_ROLES')
+    @Put(':id/show')
+    /**
+     * Fetch a role by its ID.
+     * 
+     * @param {string} id - The ID of the role to fetch.
+     * @param {Request} req - The HTTP request object.
+     * @param {Response} res - The HTTP response object.
+     * 
+     * @returns {Promise<void>} - Returns a Promise that resolves when the response is sent.
+     */
+    async show(
+        @Param('id') id: string,
+        @Req() req: Request,  
+        @Res() res: Response
+    ) {
+        try{
+            // Fetch the role from the database
+            let role = await this.roleModel.findOneOrFail({id},{ populate:['permissions'] });
 
-    @UseGuards(AuthGuard)
+            // Send the response with HTTP status 200
+            return res.status(HttpStatus.OK).json({role});
+        } catch(error) {
+            // Log the error and throw an HTTP exception with the error message and status
+            throw new HttpException(error.message, error.status);
+        }
+    }
+
+    @Permissions('UPDATE_ROLES')
+    @Put(':id/update')
+    /**
+     * Fetch a role by its ID.
+     * 
+     * @param {string} id - The ID of the role to fetch.
+     * @param {Request} req - The HTTP request object.
+     * @param {Response} res - The HTTP response object.
+     * 
+     * @returns {Promise<void>} - Returns a Promise that resolves when the response is sent.
+     */
+    async update(
+        @Param('id') id: string,
+        @Body() body:    UpdateRoleValidation,
+        @Req() req:      Request,  
+        @Res() res:      Response
+    ) {
+        try{
+            // Fetch role
+            let role =  await this.roleModel.findOneOrFail({id},{ populate: ['permissions'] });
+
+            let checkfordeleted = difference(role.permissions.map(permission => permission.id),body.permissions);
+            let checkforadded   = difference(body.permissions,role.permissions.map(permission => permission.id));
+
+            // Update role
+            await this.roleModel.nativeUpdate({id},{ name: body.name });
+            
+            // Delete permissions
+            await Promise.all(
+                cloneDeep(checkfordeleted).map( 
+                    async permission => {
+                        let fetched_permission = await this.permissionModel.findOneOrFail({ id: permission });
+                        let role_permission    = await this.rolePermissionModel.findOneOrFail({ role, permission: fetched_permission });
+                        return await this.rolePermissionModel.nativeDelete({ id: role_permission.id });
+                    }
+                )
+            );
+
+            // Assign permissions
+            await Promise.all(
+                cloneDeep(checkforadded).map( 
+                    async permission => {
+                        let fetched_permission = await this.permissionModel.findOneOrFail({ id: permission });
+                        return await this.rolePermissionModel.save({ role, permission: fetched_permission });
+                    }
+                )
+            );            
+
+            // Send the response with HTTP status 200
+            return res.status(HttpStatus.OK).json({});
+        } catch(error) {
+            console.log(error);
+            // Log the error and throw an HTTP exception with the error message and status
+            throw new HttpException(error.message, error.status);
+        }
+    }    
+
+    @Permissions('DELETE_ROLES')
     @Delete(':id/delete')
     /**
      * Delete a role by its ID.
@@ -140,4 +227,35 @@ export class RoleController {
             throw new HttpException(error.message, error.status);
         }
     }
+
+    @Permissions('READ_ROLES')
+    @Get('fetch')
+    /**
+     * Fetch all expense types.
+     * 
+     * @param {Request} req - The HTTP request object.
+     * @param {Response} res - The HTTP response object.
+     * 
+     * @returns {Promise<void>} - Returns a Promise that resolves when the response is sent.
+     */
+    async fetch(
+        @Req()  req:  Request,  
+        @Res()  res:  Response
+    ): Promise<void> {
+        try {
+            // Fetch auth user
+            let user    = get(req,'user');
+
+            // Fetch all expense types
+            let roles = await this.roleModel.find({ state: { $eq: 0 }, society: user.society });
+
+            // Send the fetched expense types as a JSON response with HTTP status 200
+            res.status(HttpStatus.OK).json({ roles });
+        } catch (error) {
+            // Log the error and throw an HTTP exception with the error message and status
+            this.logger.error(error);
+            throw new HttpException(error.message, error.status);
+        }
+    }       
+
 }
