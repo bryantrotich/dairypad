@@ -1,4 +1,4 @@
-import { Catch, Injectable } from '@nestjs/common';
+import { Catch, Injectable, Logger } from '@nestjs/common';
 import { RoleEntity } from '../entities';
 import { ValidationError, SyntaxErrorException, NotFoundError, MetadataError, ExceptionConverter } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/mysql';
@@ -8,6 +8,9 @@ import { ModelException } from 'src/http/exceptions';
 @Injectable()
 @Catch(ValidationError, SyntaxErrorException, NotFoundError, MetadataError)
 export default class RoleModel extends EntityRepository<RoleEntity>{
+  
+  private readonly logger = new Logger(RoleModel.name);
+
   constructor(
     /**
      * The brand repository.
@@ -42,7 +45,7 @@ export default class RoleModel extends EntityRepository<RoleEntity>{
       return entity;
     } catch (error) {
       // Log the error and throw an HTTP exception with the error message and status
-      console.log(error);
+      this.logger.log(error);
       throw new Error(error);
     }
   }
