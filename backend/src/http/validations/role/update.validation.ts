@@ -1,5 +1,5 @@
 import { ArrayMinSize, IsArray, IsEmail, IsNotEmpty, IsOptional, IsString, Matches, MinLength } from 'class-validator';
-export class CreateRoleValidation {
+export class UpdateRoleValidation {
 
     @IsArray()
     @IsNotEmpty()
