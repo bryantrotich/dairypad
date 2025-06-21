@@ -1,7 +1,7 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ApiMiddleware, RedirectIfAuthMiddleware } from './http/middlewares';
 import { JwtStrategy, LocalStrategy } from './http/guards';
-import { AuthController, CustomerController, ExpenseController, ExpenseTypeController, PermissionController, ProductController, RoleController, SocietyController, SystemController, TransporterController } from './http/controllers';
+import { AuthController, CustomerController, EmployeeController, ExpenseController, ExpenseTypeController, PermissionController, ProductController, RoleController, SocietyController, SystemController, TransporterController } from './http/controllers';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -65,6 +65,7 @@ import { MySqlDriver } from '@mikro-orm/mysql';
   controllers: [
     AuthController, 
     CustomerController, 
+    EmployeeController,
     ExpenseController, 
     ExpenseTypeController, 
     PermissionController,
