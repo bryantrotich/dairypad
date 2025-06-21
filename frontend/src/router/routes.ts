@@ -5,7 +5,7 @@ export default [
         meta: {
             title:     'Overview',
             auth:  true,
-            state: 0
+            permissions: ['READ_OVERVIEW']
         },
         component: () => import('@/pages/Overview.vue')
     },    
@@ -15,7 +15,7 @@ export default [
         meta: {
             title: 'Login',
             auth:  false,
-            state: '*'
+            permission: []
         },
         component: () => import('@/pages/Login.vue')
     },      
@@ -25,17 +25,32 @@ export default [
         meta: {
             title: 'Customers',
             auth:  true,
-            state: 1
+            permissions: ['READ_CUSTOMERS']            
         },
         component: () => import('@/pages/Customers.vue')
     },
+    {
+        path: '/hr',
+        children: [
+            {
+                path: 'employees',
+                name: "Employees",
+                meta: {
+                    title: 'Employees',
+                    auth:  true,
+                    permissions: ['READ_EMPLOYEES']
+                },
+                component: () => import('@/pages/Employees.vue')
+            },             
+        ]
+    },     
     {
         path: '/expenses',
         name: "Expenses",
         meta: {
             title: 'Expenses',
             auth:  true,
-            state: 1
+            permissions: ['READ_EXPENSES']
         },
         component: () => import('@/pages/Expenses.vue')
     },     
@@ -45,7 +60,7 @@ export default [
         meta: {
             title: 'Societies',
             auth:  true,
-            state: 1
+            permissions: ['READ_SOCIETIES']
         },
         component: () => import('@/pages/Societies.vue')
     },        
@@ -55,7 +70,7 @@ export default [
         meta: {
             title: 'Transporters',
             auth:  true,
-            state: 1
+            permissions: ['READ_TRANSPORTERS']
         },
         component: () => import('@/pages/Transporters.vue')
     },       
@@ -65,7 +80,7 @@ export default [
         meta: {
             title: 'Products',
             auth:  true,
-            state: 1
+            permissions: ['READ_PRODUCTS']
         },
         component: () => import('@/pages/Products.vue')
     },  
@@ -75,38 +90,43 @@ export default [
         meta: {
             title: 'Roles & Permissions',
             auth:  true,
-            state: 1
+            permissions: ['READ_ROLES','READ_PERMISSIONS']
         },
         component: () => import('@/pages/RolesPermissions.vue')
-    },            
-    {
-        path: '/company',
-        name: "Company",
-        meta: {
-        title: 'Company',
-            auth:  true,
-            state: 2
-        },
-        component: () => import('@/pages/Company.vue')
-    },        
+    },                  
     {
         path: '/profile',
         name: "Profile",
         meta: {
             title: 'Profile',
             auth:  true,
-            state: 0
+            permissions: []
         },
         component: () => import('@/pages/Profile.vue')
     },       
     {
-        path: '/system',
-        name: "System",
+        path: '/customers',
+        name: "Customers",
         meta: {
-            title: 'System',
+            title: 'Customers',
             auth:  true,
-            state: 3
+            permissions: ['READ_CUSTOMERS']
         },
-        component: () => import('@/pages/System.vue')
-    }                                     
+        component: () => import('@/pages/Customers.vue')
+    }, 
+    {
+        path: '/verify',
+        children: [
+            {
+                path: 'email/:token',
+                name: "Verify Email",
+                meta: {
+                    title: 'Verify Email',
+                    auth:  false,
+                    permissions: []
+                },
+                component: () => import('@/pages/VerifyEmail.vue')
+            },            
+        ]
+    },                                       
 ]

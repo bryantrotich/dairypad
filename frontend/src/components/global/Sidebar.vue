@@ -4,73 +4,30 @@
     <CSidebarBrand>CoreUI</CSidebarBrand>
   </CSidebarHeader>
   <CSidebarNav>
-    <CNavTitle>Analytics</CNavTitle>
-    <CNavItem @click.prevent="$router.push({ name: 'Overview' })" href="#" :active="$route.name === 'Overview'">
-      <CIcon customClassName="nav-icon" icon="cil-speedometer"/> Overview
-    </CNavItem>
-    <CNavTitle>Platform</CNavTitle>
-    <CNavItem @click.prevent="$router.push({ name: 'Customers' })" href="#" :active="$route.name === 'Customers'">
-      <CIcon  customClassName="nav-icon" icon="cil-group"/> Customers
-    </CNavItem>
-    <CNavItem @click.prevent="$router.push({ name: 'Products' })" href="#" :active="$route.name === 'Products'">
-      <CIcon  customClassName="nav-icon" icon="cil-grid"/> Products
-    </CNavItem>    
-    <CNavItem @click.prevent="$router.push({ name: 'Societies' })" href="#" :active="$route.name === 'Societies'">
-      <CIcon  customClassName="nav-icon" icon="cil-building"/> Societies
-    </CNavItem>   
-    <CNavItem @click.prevent="$router.push({ name: 'Transporters' })" href="#" :active="$route.name === 'Transporters'">
-      <CIcon  customClassName="nav-icon" icon="cil-truck"/> Transporters
-    </CNavItem>  
-    <CNavItem @click.prevent="$router.push({ name: 'Expenses' })" href="#" :active="$route.name === 'Expenses'">
-      <CIcon  customClassName="nav-icon" icon="cil-list-rich"/> Expenses
-    </CNavItem>            
-    <CNavGroup>
-      <template #togglerContent>
-        <CIcon  customClassName="nav-icon" icon="cil-list"/> HR
+    <template v-for="(group,group_index) in links" :key="`${group.title}_${group_index}`">
+      <CNavTitle>{{ group.title }}</CNavTitle>  
+      <template v-for="(link,link_index) in group.children" :key="`${link.title}_${link_index}`">
+        <template v-if="has(link,'children')">
+          <CNavGroup :visible="link.visible.includes($route.name)">    
+            <template #togglerContent>
+              <CIcon  customClassName="nav-icon" :icon="link.icon"/>
+              {{ link.label }}
+            </template>           
+            <template v-for="(sub_link,sub_link_index) in link.children" :key="`${sub_link.title}_${sub_link_index}`">              
+              <CNavItem @click.prevent="$router.push(sub_link.to)" href="#" :active="$route.name === sub_link.to.name">
+                {{ sub_link.label }}
+              </CNavItem>   
+            </template>
+          </CNavGroup>        
+        </template>
+        <template v-if="!has(link,'children')">
+          <CNavItem @click.prevent="$router.push(link.to)" href="#" :active="$route.name === link.to.name">
+            <CIcon customClassName="nav-icon" :icon="link.icon"/> 
+            {{ link.label }}
+          </CNavItem>          
+        </template>        
       </template>
-      <CNavItem  href="/">
-        <CIcon  customClassName="nav-icon" /> Employees
-      </CNavItem>
-      <CNavItem href="/">
-        <CIcon  customClassName="nav-icon" /> Salaries
-      </CNavItem>
-      <CNavItem href="/">
-        <CIcon  customClassName="nav-icon" /> Loans & Advances
-      </CNavItem>      
-      <CNavItem href="/">
-        <CIcon  customClassName="nav-icon" /> Overtime
-      </CNavItem>   
-      <CNavItem href="/">
-        <CIcon  customClassName="nav-icon" /> Alowances
-      </CNavItem>
-      <CNavItem href="/">
-        <CIcon  customClassName="nav-icon" /> Allowance Types
-      </CNavItem>   
-      <CNavItem href="/">
-        <CIcon  customClassName="nav-icon" /> Deductions
-      </CNavItem>       
-      <CNavItem href="/">
-        <CIcon  customClassName="nav-icon" /> Deduction Types
-      </CNavItem>                                       
-    </CNavGroup>   
-    <CNavTitle>Management</CNavTitle>
-    <CNavItem @click.prevent="$router.push({ name: 'RolesPermissions' })" href="#" :active="$route.name === 'RolesPermissions'">
-      <CIcon  customClassName="nav-icon" icon="cil-shield-alt"/> Roles & Permissions
-    </CNavItem>       
-    <CNavGroup :visible="$route.name == 'Profile' || $route.name == 'Company' || $route.name == 'System'" compact>
-      <template #togglerContent>
-        <CIcon  customClassName="nav-icon" icon="cil-cog"/> Account
-      </template> 
-      <CNavItem @click.prevent="$router.push({ name: 'Profile' })" href="#" :active="$route.name === 'Profile'">
-        <CIcon  customClassName="nav-icon"/> Profile
-      </CNavItem>
-      <CNavItem @click.prevent="$router.push({ name: 'Company' })" href="#" :active="$route.name === 'Company'">
-        <CIcon  customClassName="nav-icon"/> Company
-      </CNavItem>
-      <CNavItem @click.prevent="$router.push({ name: 'System' })" href="#" :active="$route.name === 'System'">
-        <CIcon  customClassName="nav-icon"/> System
-      </CNavItem>        
-    </CNavGroup>             
+    </template>
   </CSidebarNav>
   <CSidebarFooter class="border-top">
     <CDropdown placement="bottom-end" variant="nav-item">
@@ -111,13 +68,14 @@
 <script setup>
 import { useAuthStore } from '@/stores';
 import { useRoute, useRouter } from 'vue-router';
-import { isNull } from 'lodash';
+import { groupBy, has, isNull } from 'lodash';
 import { computed } from 'vue';
 
-const authStore = useAuthStore();
-const $router   = useRouter();
-const $route    = useRoute();
+const authStore       = useAuthStore();
+const $router         = useRouter();
+const $route          = useRoute();
 
+const links     = computed( () => authStore.links );
 const user      = computed( () => authStore.auth.user );
 /**
  * Logs the user out and redirects to the login page
