@@ -114,6 +114,7 @@
             </CPagination>
         </CCol>
         <CreatePermission
+            :modules="$data.modules"
             :show="$data.modals.create" 
             @fetch="fetch" 
             @close="$data.modals.create = $event" 
@@ -158,9 +159,11 @@ const fetch = async () => {
         // Destructure pagination
         const { current, limit } = $data.pagination;
         // Fetch the socities from the backend
-        const { data: { count, permissions, pages } } = await $api.get(`/permissions?page=${current}&limit=${limit}`);
+        const { data: { count, permissions, pages, modules } } = await $api.get(`/permissions?page=${current}&limit=${limit}`);
         // Set the socities to the data fetched from the backend
         $data.permissions      = permissions;
+        // Modules
+        $data.modules          = modules;
         // Get number of pages
         $data.pagination.pages = pages;
         // Get total number of societies

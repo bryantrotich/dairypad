@@ -15,6 +15,13 @@
                     <p v-show="has($data.errors,'name')" class="text-danger mb-0">{{ $data.errors.name }}</p>              
                 </CCol>
                 <CCol md="12" class="py-2">
+                    <CFormSelect label="Role" aria-label="Expense Type" v-model="$data.form.module">
+                        <option>Select Module*</option>
+                        <option v-for="(module,index) in $props.modules" :key="index" :value="module.id">{{ module.name }}</option>
+                    </CFormSelect>
+                    <p v-show="has($data.errors,'role')" class="text-danger mb-0">{{ $data.errors.role }}</p>              
+                </CCol>                
+                <CCol md="12" class="py-2">
                     <CFormTextarea                    
                         label="Description"
                         placeholder="eg. Describe the type of expense"
@@ -47,7 +54,11 @@ const modal: any  = computed({
     set: (value) => $emit('close', value)
 });
 
-const $props = defineProps({
+const $props: any = defineProps({
+    modules: {
+        default: [],
+        type:    Array
+    },
     show: {
         default: Boolean(),
         type:    Boolean
@@ -58,6 +69,7 @@ const $data: any = reactive({
     errors: {},
     form: {
         description:  "",
+        module:       "",
         name:         "",
     },
     loading: Boolean(),
@@ -66,25 +78,14 @@ const $data: any = reactive({
 
 const formSchema: any = object().shape({
     description:  string().required("*Description is required"),
+    module:       string().required("*Module is required"),
     name:         string().required("*Name is required"),
 });
-
-/**
- * Update the phone number in the form data.
- *
- * @param {Event|String} $event - The event object or the phone number.
- * @return {void}
- */
-const getPhoneNumber = ($event: any) => {
-    // Check if the event is a string or not.
-    // If it's a string, assign it to the phone number field.
-    // If it's an event object, assign the value of the target to the phone number field.
-    $data.form.phone_number = $event.constructor == String ? $event : $event.target.value 
-}
 
 const resetForm = () => {
     $data.form = {
         description:  "",
+        module:       "",
         name:         "",
     }
 }
@@ -94,9 +95,9 @@ const save = async () => {
         // Set the loader to true so that the user knows that the data is being fetched.
         $data.loading = true;
         // Fetch the socities from the backend
-        const { data: { society } } = await $api.post('/expense-types',cloneDeep($data.form));
+        const { data: { society } } = await $api.post('/permissions',cloneDeep($data.form));
         // Toast show message
-        $toast.success($i18n.t('expensetypes.messages.success.created'));    
+        $toast.success($i18n.t('permissions.messages.success.created'));    
         // Set the socities to the data fetched from the backend
         modal.value = false;
         // Fetch data

@@ -44,7 +44,7 @@
                                             <CIcon icon="cil-options" />
                                         </CDropdownToggle>
                                         <CDropdownMenu class="py-0">
-                                            <CDropdownItem href="#" class="text-primary" @click="edit(role.id)">
+                                            <CDropdownItem href="#" class="text-primary" @click="show(role.id)">
                                                 <CIcon icon="cil-pencil" />
                                                 Edit
                                             </CDropdownItem>
@@ -116,21 +116,28 @@
             @fetch="fetch" 
             @close="$data.modals.create = $event" 
         />
+        <UpdateRole
+            :data="$data.role"
+            :show="$data.modals.show" 
+            @fetch="fetch" 
+            @close="$data.modals.show = $event" 
+        />        
     </CRow>
 </template>
 <script setup lang="ts">
-import { CreateRole } from '../';
-import { inject, onMounted, reactive, watch } from 'vue';
-import { isEmpty, times } from 'lodash';
+import { CreateRole, UpdateRole } from '../';
+import { inject, onBeforeMount, reactive, watch } from 'vue';
+import { debounce, isEmpty, times } from 'lodash';
 
 const $api:   any = inject('$api');
 const $toast: any = inject('$toast');
 const $swal: any  = inject('$swal');
 const $data:  any = reactive({
     roles: [],
+    role:  {},
     modals: {
         create: Boolean(),
-        edit:   Boolean(),
+        show:   Boolean(),
     },
     loaders: {
         create: Boolean(),
@@ -180,6 +187,36 @@ const fetch = async () => {
     }
 }
 
+/**
+ * Fetch all the roles from the backend
+ *
+ * This function fetches all the roles from the backend and assigns them to the
+ * $data.roles property. It also sets the loader to true while the data is being
+ * fetched and false when the data has finished fetching. The function can throw
+ * an error if the data cannot be fetched.
+ *
+ * @return {void}
+ */
+const show = async (id: string) => {
+    try {
+        // Set the loader to true so that the user knows that the data is being fetched.
+        $data.loaders.show = true;
+        // Fetch the roles from the backend
+        const { data: { role } } = await $api.put(`/roles/${id}/show`);
+        // Set the roles to the data fetched from the backend
+        $data.role               = role;
+        // View modal
+        $data.modals.show        = true;
+    } catch(error) {
+        // Catch any errors that may occur and set the loader to false
+        $data.loaders.show = false;
+    } finally {
+        // Set the loader to false so that the user knows that the data has finished fetching
+        $data.loaders.show = false;
+    }
+}
+
+
 const remove = async (id: string) => {
     try {
 
@@ -217,12 +254,34 @@ const remove = async (id: string) => {
     }    
 }
 
-onMounted(fetch);
+onBeforeMount(fetch);
 
+/**
+ * Watches for changes in the 'current' property of the pagination object.
+ *
+ * When the current page changes, fetch the roles from the backend again.
+ */
 watch(
     () => $data.pagination.current,
     () => {
+        // Fetch the roles from the backend again
         fetch();
     }
+)
+
+/**
+ * Watches for changes in the 'show' prop of the modal.
+ *
+ * @param {Boolean} value - The current state of the 'show' prop.
+ */
+watch(
+    () => $data.modals.show,
+    debounce(
+        (value: boolean) => {
+        // If the modal is not showing, reset the role to an empty object
+        if( !value ){
+            $data.role = {};
+        }
+    },200)
 )
 </script>
