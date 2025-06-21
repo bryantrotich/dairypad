@@ -6,8 +6,8 @@ import { cloneDeep } from 'lodash';
 export class RoleSeeder extends Seeder {
 
   private readonly roles = [
-    { name: "Admin", value: "admin" },
-    { name: "Super", value: "super" },
+    { name: "Admin", value: "admin", state: 1 },
+    { name: "Super", value: "super", state: 2 },
   ]
   async run(em: EntityManager): Promise<void> {
     try{
@@ -20,7 +20,8 @@ export class RoleSeeder extends Seeder {
           id:         uuidv4(),
           society_id: society.id,
           name:       role.name,
-          is_super:   role.name == 'Super' ? true : false,
+          is_super:   role.state == 2 ? true : false,
+          state:      role.state,
           created_at: new Date(), 
           updated_at: new Date()
         })
