@@ -3,7 +3,6 @@ import { defineStore } from 'pinia'
 import { groupBy, isNull } from 'lodash';
 import { useStorage } from '@vueuse/core';
 import { useSidebarStore } from './sidebar';
-import { group } from 'console';
 
 export const useAuthStore = defineStore('auth', () => {
 
@@ -22,21 +21,23 @@ export const useAuthStore = defineStore('auth', () => {
             },
         },
     );
-    
-    const links             = computed( 
-        () => storeLinks.map( 
-            group => {
-                return {
-                    ...group,
-                    children: group.children.filter(
-                        (link: any) => link.permissions.every( 
-                            (permission: any) => auth.value.permissions.includes(permission) 
-                        )        
-                    ) 
-                };
-            }
-        ) 
-    );
+
+    const links = computed( () => storeLinks);
+
+    // const links             = computed( 
+    //     () => storeLinks.map( 
+    //         group => {
+    //             return {
+    //                 ...group,
+    //                 children: group.children.filter(
+    //                     (link: any) => link.permissions.every( 
+    //                         (permission: any) => auth.value.permissions.includes(permission) 
+    //                     )        
+    //                 ) 
+    //             };
+    //         }
+    //     ) 
+    // );
 
     /**
      * Updates the authentication data in local storage
