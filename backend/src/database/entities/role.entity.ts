@@ -1,5 +1,5 @@
 import { SocietyEntity, UserEntity } from './index';
-import { Entity, PrimaryKey, Property, ManyToOne, OneToMany, Collection, Cascade, ManyToMany } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, ManyToOne, OneToMany, Collection, Cascade, ManyToMany, Enum } from '@mikro-orm/core';
 import { v4 as uuidv4 } from 'uuid';
 import moment from 'moment';
 import { PermissionEntity } from './permission.entity';
@@ -35,6 +35,13 @@ export class RoleEntity {
     }
   )
   society: SocietyEntity;  
+
+  @Enum({
+    items: () => [2,1,0],
+    nullable: true,
+    default: 0
+  })
+  state: number;
 
   @OneToMany(
     () => UserEntity, 
