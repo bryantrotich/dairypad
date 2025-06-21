@@ -4,7 +4,7 @@ export default registerAs('app',() => ({
     env: process.env,
     modules:[
         { name: "Societies", value: "societies" },
-        { name: "Users", value: "users" },
+        { name: "Overview", value: "overview" },
         { name: "Employees", value: "employees" },
         { name: "Farmers", value: "farmers" },
         { name: "Transporters", value: "transporters" },
@@ -14,7 +14,6 @@ export default registerAs('app',() => ({
         { name: "Roles", value: "roles" },
         { name: "Permissions", value: "permissions" },
         { name: "Customers", value: "customers" },
-        { name: "Sales", value: "sales" },
         { name: "Products", value: "products" },
     ],
     permissions: [
