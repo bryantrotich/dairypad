@@ -26,6 +26,21 @@ export class MailService {
     });
   }
 
+
+  async welcome(user: UserEntity) {
+    await this.mailerService.sendMail({
+      to: user.email,
+      // from: '"Support Team" <support@example.com>', // override default from
+      subject: `Welcome to ${this.configService.get<string>('app.env.APP_NAME')}. Confirm your Email`,
+      template: 'welcome', // `.hbs` extension is appended automatically
+      context: { // ✏️ filling curly brackets with content
+        app_name: this.configService.get<string>('app.env.APP_NAME'),
+        name:    `${user.first_name} ${user.last_name}`,
+        url:     `${this.configService.get<string>('app.env.APP_URL')}/verify/email/${user.token}`,
+      },
+    });
+  }  
+
   /**
    * Sends a confirmation email to a user.
    * 
