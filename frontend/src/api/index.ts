@@ -6,12 +6,12 @@ export default {
     install: (app: any) => {
         
         // State variables
-        const { VITE_APP_URL } = useEnvStore();
+        const { VITE_API_URL } = useEnvStore();
         const { auth }: any    = useAuthStore();
 
         // Init axios
         const api = axios.create({
-            baseURL: `${VITE_APP_URL}/api/v1`,
+            baseURL: `${VITE_API_URL}/api/v1`,
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
