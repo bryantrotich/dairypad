@@ -23,7 +23,7 @@ export default registerAs('app',() => ({
         { name: "DELETE_{MODULE}", value: "delete_{MODULE}" },
     ],
     roles: [
-        { name: "Admin",    value: "admin" },
-        { name: "Employee", value: "employee" },
+        { name: "Admin", value: "admin", state: 1 },
+        { name: "Super", value: "super", state: 2 },
     ]
 }));

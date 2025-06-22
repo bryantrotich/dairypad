@@ -43,7 +43,7 @@
                                                 <CIcon icon="cil-pencil" />
                                                 Edit
                                             </CDropdownItem>
-                                            <CDropdownItem href="#" class="text-danger">
+                                            <CDropdownItem href="#" class="text-danger" @click="remove(society.id)">
                                                 <CIcon icon="cil-trash" />
                                                 Delete
                                             </CDropdownItem>
@@ -131,10 +131,11 @@ import { CCardBody } from '@coreui/vue';
 import { useAuthStore } from '@/stores';
 
 const { auth, update: updateAuthStore }: any = useAuthStore();
-const $api:      any        = inject('$api');
-const $toast:    any        = inject('$toast');
-const $i18n:     any        = inject('$i18n');
-const $data:     any        = reactive({
+const $api:      any  = inject('$api');
+const $toast:    any  = inject('$toast');
+const $i18n:     any  = inject('$i18n');
+const $swal:     any  = inject('$swal');
+const $data:     any  = reactive({
     societies: {},
     modals: {
         create: Boolean(),
@@ -215,6 +216,43 @@ const switch_society = async ({ id }:any) => {
         // Set the loader to false so that the user knows that the data has finished fetching
         $data.loaders.fetch = false;
     }
+}
+
+const remove = async (id: string) => {
+    try {
+
+        // Show a confirmation dialog
+        const { isConfirmed } = await $swal.fire({
+            title: 'Are you sure?',
+            text:  'You are about to delete this society. This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        });
+
+        // If the user clicks cancel, return
+        if( !isConfirmed ) return;
+
+        // Set the loader to true so that the user knows that the data is being fetched.
+        $data.loaders.delete = true;
+
+        // Fetch the socities from the backend
+        await $api.delete(`societies/${id}/delete`);
+
+        // Toast show message
+        $toast.success('Society has been removed');
+
+        // Fetch new roles
+        fetch();
+    } catch(error) {
+        // Catch any errors that may occur and set the loader to false
+        $data.loaders.delete = false;
+    } finally {
+        // Set the loader to false so that the user knows that the data has finished fetching
+        $data.loaders.delete = false;
+    }    
 }
 
 onMounted(fetch);

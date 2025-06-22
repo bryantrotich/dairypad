@@ -1,19 +1,27 @@
-import { Body, Controller, DefaultValuePipe, Get, HttpException, HttpStatus, Param, Post, Put, Query, Req, Res, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '../../guards';
+import { Body, Controller, DefaultValuePipe, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { AuthGuard, PermissionsGuard } from '../../guards';
 import { Request, Response } from 'express';
-import { SocietyModel, UserModel } from 'src/database/models';
+import { PermissionModel, RoleModel, RolePermissionModel, SocietyModel, UserModel } from 'src/database/models';
 import { CreateSocietyValidation } from 'src/http/validations';
-import { get } from 'lodash';
+import { cloneDeep, get } from 'lodash';
+import { ConfigService } from '@nestjs/config';
+import { v4 as uuidv4 } from 'uuid';
+import { Permissions } from 'src/support/gates';
 
 @Controller('societies')
+@UseGuards(AuthGuard,PermissionsGuard)
 export class SocietyController {
 
     constructor(
+        private readonly configService: ConfigService,
+        private readonly permissionModel: PermissionModel,
+        private readonly rolePermissionModel: RolePermissionModel,
         private readonly societyModel: SocietyModel,
+        private readonly roleModel: RoleModel,
         private readonly userModel: UserModel
     ){}
 
-    @UseGuards(AuthGuard)
+    @Permissions('READ_SOCIETIES')
     @Get('')
     /**
      * Index method to fetch societies with pagination.
@@ -57,7 +65,7 @@ export class SocietyController {
         }
     }
 
-    @UseGuards(AuthGuard)
+    @Permissions('CREATE_SOCIETIES')
     @Post('')
     /**
      * Store a newly created society in storage.
@@ -76,8 +84,72 @@ export class SocietyController {
         try {
 
             // Create a new society in the database
-            let society = await this.societyModel.save(body);
+            let society: any = await this.societyModel.save(body);
 
+            let permissions: any = this.configService.get<any>('app.modules').map(
+                (module) => {
+                    return cloneDeep(this.configService.get<any>('app.permissions')).map(
+                        (permission) => {
+                            return {
+                                id:         uuidv4(),
+                                module:     module.value,
+                                name:       permission.name.replace('{MODULE}', module.name.toUpperCase()),
+                                society_id: society.id,
+                                created_at: new Date(), 
+                                updated_at: new Date()
+                            }
+                        }
+                    )
+                }
+            ).flat();
+
+            await this.permissionModel.insertMany(permissions);
+
+            let roles: any       = cloneDeep(this.configService.get<any>('app.roles')).map( 
+                (role) => ({
+                    id:         uuidv4(),
+                    society_id: society.id,
+                    name:       role.name,
+                    is_super:   role.state == 2 ? true : false,
+                    state:      role.state,
+                    created_at: new Date(), 
+                    updated_at: new Date()
+                })
+            );           
+            
+            await this.roleModel.insertMany(roles);
+            
+            let role_permissions = cloneDeep(roles).map(
+                (role) => {
+                switch(role.name){
+                    case 'Admin':
+                    return permissions.filter( 
+                        permission => permission.module != 'societies' 
+                    ).map(
+                        (permission) => ({ 
+                        id:            uuidv4(), 
+                        role_id:       role.id, 
+                        permission_id: permission.id, 
+                        created_at:    new Date(), 
+                        updated_at:    new Date() 
+                        })
+                    )
+                    case 'Super':
+                    return permissions.map(
+                        (permission) => ({ 
+                        id:            uuidv4(),
+                        role_id:       role.id, 
+                        permission_id: permission.id, 
+                        created_at:    new Date(), 
+                        updated_at:    new Date() 
+                        })
+                    );
+                }
+                }
+            ).flat();     
+            
+            await this.rolePermissionModel.insertMany(role_permissions);
+            
             // Send the created society as a JSON response with HTTP status 201 Created
             res.status(HttpStatus.CREATED).json({ society });
         } catch (error) {
@@ -87,7 +159,7 @@ export class SocietyController {
         }
     }
 
-    @UseGuards(AuthGuard)
+    @Permissions('READ_SOCIETIES')
     @Put(':id/switch')
     async switch( 
         @Param('id') society_id: string,
@@ -113,5 +185,33 @@ export class SocietyController {
             console.log(error);
             throw new HttpException(error.message, error.status);
         }        
+    }    
+
+    @Permissions('DELETE_SOCIETIES')
+    @Delete(':id/delete')
+    /**
+     * Delete a role by its ID.
+     * 
+     * @param {string} id - The ID of the role to delete.
+     * @param {Request} req - The HTTP request object.
+     * @param {Response} res - The HTTP response object.
+     * 
+     * @returns {Promise<void>} - Returns a Promise that resolves when the response is sent.
+     */
+    async delete(
+        @Param('id') id: string,
+        @Req() req: Request,  
+        @Res() res: Response
+    ) {
+        try{
+            // Delete the role from the database
+            await this.societyModel.nativeDelete(id);
+
+            // Send the response with HTTP status 200
+            return res.status(HttpStatus.OK).json({});
+        } catch(error) {
+            // Log the error and throw an HTTP exception with the error message and status
+            throw new HttpException(error.message, error.status);
+        }
     }     
 }

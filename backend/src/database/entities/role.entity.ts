@@ -13,9 +13,7 @@ export class RoleEntity {
   @Property({ nullable: true, type: 'boolean', default: false })
   is_super: boolean;  
 
-  @Property({
-    unique: true
-  })
+  @Property()
   name: string;
   
   @ManyToMany({
