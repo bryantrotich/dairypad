@@ -1,18 +1,18 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch, reactive } from 'vue'
 import { defineStore } from 'pinia'
-import { groupBy, isNull } from 'lodash';
-import { useStorage } from '@vueuse/core';
+import { useStorage, useStorageAsync } from '@vueuse/core';
 import { useSidebarStore } from './sidebar';
 
 export const useAuthStore = defineStore('auth', () => {
 
     const storeLinks        = useSidebarStore();
     const { VITE_APP_NAME } = import.meta.env;
-    const data              = ref({});
-    
-    const auth: any         = useStorage(
+    const data              = reactive({ auth: {}, storage: {}});
+    const auth              = computed( () => data.auth);
+
+    const storage: any         = useStorage(
         `${VITE_APP_NAME.replaceAll(' ','').toLowerCase()}`, 
-        data, 
+        data.storage, 
         localStorage,
         {
             serializer: {
@@ -21,7 +21,7 @@ export const useAuthStore = defineStore('auth', () => {
             },
         },
     );
-
+    
     const links = computed( () => storeLinks);
 
     // const links             = computed( 
@@ -52,7 +52,7 @@ export const useAuthStore = defineStore('auth', () => {
          * 
          * @param {Object} data - The authentication data containing the user and token
          */
-        auth.value = data;
+        storage.value = data;
     }
     
     /**
@@ -67,7 +67,7 @@ export const useAuthStore = defineStore('auth', () => {
          * @param {Object} data - The authentication data containing the user and token
          */
         // await auth.value = data;
-        auth.value = data;
+        storage.value = data;
     }
 
     /**
@@ -78,9 +78,17 @@ export const useAuthStore = defineStore('auth', () => {
         /**
          * Removes the authentication data from local storage
          */
-        auth.value = {}
+        storage.value = {}
     }
 
-    return { auth: auth.value, links: links.value, login, logout, update }
+    watch(
+        () => storage.value,
+        (value) => { 
+            data.auth = value;
+        },
+        { deep: true, immediate: true }
+    )
+
+    return { auth, links: links.value, login, logout, update }
 
 });

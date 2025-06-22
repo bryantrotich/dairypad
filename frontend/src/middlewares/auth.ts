@@ -6,8 +6,9 @@ export const AuthMiddelware = (to: any, from: any, next: any) => {
     const { auth: authenticated } = useAuthStore();
     const { meta: { auth } }      = to;
 
+    
     if( auth && !isEmpty(authenticated) ){
-        next();
+        return next();
     }
 
     if( auth && isEmpty(authenticated) ){
@@ -17,12 +18,12 @@ export const AuthMiddelware = (to: any, from: any, next: any) => {
 
     if( !auth && !isEmpty(authenticated) ){
         // Redirect to home if the route does not require authentication but user is authenticated
-        return { name: 'Overview' };
+        return next({ name: 'Overview' });
     }
 
     if( !auth && isEmpty(authenticated) ){
         // Allow access to public routes
-        next();
+        return next();
     }
 
 }

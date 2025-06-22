@@ -30,7 +30,7 @@
     </template>
   </CSidebarNav>
   <CSidebarFooter class="border-top">
-    <CDropdown placement="bottom-end" variant="nav-item">
+    <CDropdown placement="bottom-end" variant="nav-item" v-if="!isEmpty(user)">
       <CDropdownToggle :caret="false" >
         <CCol md="12" class="d-flex align-items-center">
           <CAvatar color="primary" class="text-white m-2">
@@ -68,7 +68,7 @@
 <script setup>
 import { useAuthStore } from '@/stores';
 import { useRoute, useRouter } from 'vue-router';
-import { groupBy, has, isNull } from 'lodash';
+import { groupBy, has, isEmpty, isNull } from 'lodash';
 import { computed } from 'vue';
 
 const authStore       = useAuthStore();

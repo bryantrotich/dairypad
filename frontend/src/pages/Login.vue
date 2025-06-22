@@ -43,7 +43,7 @@
                             </CCol>           
                             <CCol md="12">
                                 <CButton color="link"    class="px-0">Forgot password?</CButton>
-                                <CButton color="warning" class="px-4 col-12" type="submit" :disabled="$data.isDisabled || $data.loader">
+                                <CButton color="primary" class="px-4 col-12" type="submit" :disabled="$data.isDisabled || $data.loader">
                                     <CSpinner size="sm" v-if="$data.loader"/> 
                                     Login 
                                 </CButton>
@@ -122,9 +122,10 @@ const submit = async () => {
 
         $toast.success($i18n.t('login.messages.success.authenticated'));
 
-        $router.push({ name: 'Overview' });
+        $router.push({ path: '/' });
         
     } catch(error: any) {
+        console.log(error);
         $data.loader = false;
 
         if( error.status == 404 ){
