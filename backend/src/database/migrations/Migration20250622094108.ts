@@ -1,12 +1,11 @@
 import { Migration } from '@mikro-orm/migrations';
 
-export class Migration20250619214328 extends Migration {
+export class Migration20250622094108 extends Migration {
 
   override async up(): Promise<void> {
     this.addSql(`create table \`societies\` (\`id\` varchar(36) not null, \`email\` varchar(255) null, \`city\` varchar(255) not null, \`name\` varchar(255) not null, \`phone_number\` varchar(255) null, \`country_code\` varchar(255) null default '254', \`created_at\` datetime null, \`updated_at\` datetime null, primary key (\`id\`)) default character set utf8mb4 engine = InnoDB;`);
 
     this.addSql(`create table \`roles\` (\`id\` varchar(36) not null, \`is_super\` tinyint(1) null default false, \`name\` varchar(255) not null, \`society_id\` varchar(36) not null, \`state\` tinyint null default 0, \`created_at\` datetime null, \`updated_at\` datetime null, primary key (\`id\`)) default character set utf8mb4 engine = InnoDB;`);
-    this.addSql(`alter table \`roles\` add unique \`roles_name_unique\`(\`name\`);`);
     this.addSql(`alter table \`roles\` add index \`roles_society_id_index\`(\`society_id\`);`);
 
     this.addSql(`create table \`products\` (\`id\` varchar(36) not null, \`description\` longtext not null, \`name\` varchar(255) not null, \`price\` int not null, \`quantity\` int not null, \`society_id\` varchar(36) not null, \`status\` enum('active', 'inactive') not null, \`created_at\` datetime null, \`updated_at\` datetime null, primary key (\`id\`)) default character set utf8mb4 engine = InnoDB;`);
