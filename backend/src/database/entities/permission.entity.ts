@@ -23,7 +23,7 @@ export class PermissionEntity {
 
     @ManyToMany({
         entity: () => RoleEntity,
-        pivotEntity: () => RolePermissionEntity
+        pivotEntity: () => RolePermissionEntity,
     })
     roles = new Collection<RoleEntity>(this)
 
