@@ -49,8 +49,18 @@ export class EmployeeController {
                 orderBy: { [order_by]: order} 
             };
 
+            let where: any = { role: {}, society: user.society };
+
+            if( user.role.is_super ){
+                set(where.role,'is_super',false);
+            }
+
+            if( !user.role.is_super ){
+                set(where.role,'state',{ $eq: 0 });
+            }            
+
             // Fetch societies with pagination, using limit and offset
-            let [ employees, count ] = await this.userModel.findAndCount({ role: { state: { $eq: 0 }, society: user.society } },options);
+            let [ employees, count ] = await this.userModel.findAndCount(where,options);
 
             // Get pages
             let pages = Math.ceil(count / limit);
