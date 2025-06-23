@@ -2,13 +2,14 @@ import { ref, computed, watch, reactive } from 'vue'
 import { defineStore } from 'pinia'
 import { useStorage, useStorageAsync } from '@vueuse/core';
 import { useSidebarStore } from './sidebar';
+import { has, isEmpty, intersection } from 'lodash';
 
 export const useAuthStore = defineStore('auth', () => {
 
-    const storeLinks        = useSidebarStore();
-    const { VITE_APP_NAME } = import.meta.env;
-    const data              = reactive({ auth: {}, storage: {}});
-    const auth              = computed( () => data.auth);
+    const { links: stored_links } = useSidebarStore();
+    const { VITE_APP_NAME }       = import.meta.env;
+    const data                    = reactive({ auth: {}, links: [], storage: {}});
+    const auth: any               = computed( () => data.auth);
 
     const storage: any         = useStorage(
         `${VITE_APP_NAME.replaceAll(' ','').toLowerCase()}`, 
@@ -21,23 +22,40 @@ export const useAuthStore = defineStore('auth', () => {
             },
         },
     );
-    
-    const links = computed( () => storeLinks);
 
-    // const links             = computed( 
-    //     () => storeLinks.map( 
-    //         group => {
-    //             return {
-    //                 ...group,
-    //                 children: group.children.filter(
-    //                     (link: any) => link.permissions.every( 
-    //                         (permission: any) => auth.value.permissions.includes(permission) 
-    //                     )        
-    //                 ) 
-    //             };
-    //         }
-    //     ) 
-    // );
+    const links = computed( () => data.links );    
+
+
+    const setLinks = (auth: any): any => {
+        
+        if( !isEmpty(auth) ){
+            return stored_links.map( 
+                group => {
+                    return {
+                        ...group,
+                        children: group.children.filter(
+                            (link: any) => {
+                                return !has(link,'children') ? 
+                                    !isEmpty( intersection(auth.permissions, link.permissions) ): 
+                                    { 
+                                        ...link, 
+                                        children: link.children.every( 
+                                            (sub_link: any) => !isEmpty( intersection(auth.permissions, sub_link.permissions) )
+                                        ) 
+                                    };
+                            }
+                        )
+                    }
+                }
+            ).filter( group => !isEmpty(group.children) );
+
+        }
+
+        if( isEmpty(auth) ){
+            return []
+        }
+
+    }
 
     /**
      * Updates the authentication data in local storage
@@ -84,11 +102,12 @@ export const useAuthStore = defineStore('auth', () => {
     watch(
         () => storage.value,
         (value) => { 
-            data.auth = value;
+            data.auth  = value;
+            data.links = setLinks(value);
         },
         { deep: true, immediate: true }
     )
 
-    return { auth, links: links.value, login, logout, update }
+    return { auth, links, login, logout, update }
 
 });
