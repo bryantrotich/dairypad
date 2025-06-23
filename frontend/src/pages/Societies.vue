@@ -196,7 +196,7 @@ const switch_society = async ({ id }:any) => {
          * @param {string} id - The ID of the society to switch to.
          * @returns {Promise<void>} - Resolves with the updated user data.
          */
-        const { data: { user } } = await $api.put(`/societies/${id}/switch`);
+        const { data: { user, permissions } } = await $api.put(`/societies/${id}/switch`);
 
         $toast.success($i18n.t('societies.messages.success.switched',{ name: user.society.name }));
 
@@ -204,6 +204,9 @@ const switch_society = async ({ id }:any) => {
          * Update the authentication state with the new user data.
          */
         set(auth, 'user', user);
+
+        // Update the permissions in the auth store
+        set(auth, 'permissions', permissions);
 
         /**
          * Persist the updated authentication state back to the auth store.
