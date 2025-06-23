@@ -57,6 +57,7 @@
                                             <p class="mb-0">{{ employee.email }}</p>
                                             <p class="mb-0">{{ employee.phone_number }}</p>
                                             <p class="mb-0">{{ employee.created_at }}</p>
+                                            <CBadge color="primary" class="p-2">{{ employee.role.name }}</CBadge>
                                         </CCol>
                                     </CCol>
                                 </CCardBody>
