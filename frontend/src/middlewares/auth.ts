@@ -1,11 +1,14 @@
 import { useAuthStore } from "@/stores";
-import { isEmpty } from "lodash";
+import { intersection, isEmpty } from "lodash";
 
 export const AuthMiddelware = (to: any, from: any, next: any) => {
 
-    const { auth: authenticated } = useAuthStore();
-    const { meta: { auth } }      = to;
+    const { auth: authenticated }        = useAuthStore();
+    const { meta: { auth, permissions } } = to;
 
+    if( !isEmpty(permissions) && isEmpty(intersection(authenticated.permissions,permissions)) ){
+        return next({ name: 'Forbidden' });
+    }
     
     if( auth && !isEmpty(authenticated) ){
         return next();

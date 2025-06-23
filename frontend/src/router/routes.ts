@@ -43,7 +43,22 @@ export default [
                 component: () => import('@/pages/Employees.vue')
             },             
         ]
-    },     
+    }, 
+    {
+        path: '/errors',
+        children: [
+            {
+                path: 'forbidden',
+                name: "Forbidden",
+                meta: {
+                    title: 'Forbidden',
+                    auth:  true,
+                    permissions: []
+                },
+                component: () => import('@/pages/Forbidden.vue')
+            },             
+        ]
+    },         
     {
         path: '/expenses',
         name: "Expenses",
