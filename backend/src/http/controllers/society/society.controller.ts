@@ -167,19 +167,28 @@ export class SocietyController {
         @Res()       res: Response
     ) {
         try {
-            let user = get(req,'user');
+            let auth_user = get(req,'user');
             
             // Fetch society
             let society = await this.societyModel.findOne({ id: society_id });
 
             // Assign user society
-            this.userModel.assign(user,{ society });
+            this.userModel.assign(auth_user,{ society });
 
             // Save user
-            await this.userModel.getEntityManager().persistAndFlush(user);
+            await this.userModel.getEntityManager().persistAndFlush(auth_user);
+
+            // Update the request user with the new society
+            let user: any = await this.userModel.findOne({ id: auth_user.id });
+
+            // Fetch the role of the user
+            let role: any = await this.roleModel.findOne({ id: user.role.id },{ populate: ['permissions'] });
+
+            // Extract permissions from the role
+            let permissions = role.permissions.map(permission => permission.name);
 
             // Send the created society as a JSON response with HTTP status 201 Created
-            res.status(HttpStatus.CREATED).json({ user });
+            res.status(HttpStatus.CREATED).json({ user, permissions });
         } catch (error) {
             // Log the error and throw an HTTP exception with the error message and status
             console.log(error);
