@@ -8,7 +8,7 @@ export class PermissionSeeder extends Seeder {
     
     private readonly modules = [
         { name: "Societies", value: "societies" },
-        { name: "Users", value: "users" },
+        { name: "Overview", value: "overview" },
         { name: "Employees", value: "employees" },
         { name: "Farmers", value: "farmers" },
         { name: "Transporters", value: "transporters" },
