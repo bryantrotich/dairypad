@@ -1,5 +1,9 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
 export class CreatePermissionValidation {
+    
+    @IsString()
+    @IsNotEmpty()
+    action: string  
 
     @IsString()
     @IsNotEmpty()
@@ -8,9 +12,5 @@ export class CreatePermissionValidation {
     @IsString()
     @IsNotEmpty()
     module: string  
-        
-    @IsString()
-    @IsNotEmpty()
-    name: string  
     
 }
