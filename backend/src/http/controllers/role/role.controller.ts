@@ -52,14 +52,24 @@ export class RoleController {
                 orderBy: { [order_by]: order} 
             };
 
+            // Get modules
+            let modules    = this.configService.get<any>('app.modules')            
+
+            // If the user is a super admin, we don't need to filter by society
+            let where: any = { society: user.society };
+
+            // If the user is not a super admin, we need to filter by society
+            if( !user.role.is_super && user.role.state == 1 ){
+                set(where,'is_super',false);
+                set(where,'state',{ $eq: 0 });
+                modules = modules.filter( (module: any) => !module.value.includes('societies') );
+            }            
+
             // Fetch societies with pagination, using limit and offset
-            let [ roles, count ] = await this.roleModel.findAndCount({ is_super: false, society: user.society },options);
+            let [ roles, count ] = await this.roleModel.findAndCount(where,options);
 
             // Refactor roles
             // roles                = roles.map( role => ({ ...omit(role,['permissions']), permissions_count: role.permissions.length }) );
-
-            // Get modules
-            let modules          = this.configService.get('app.modules')
 
             // Get pages
             let pages = Math.ceil(count / limit);
@@ -228,7 +238,7 @@ export class RoleController {
         }
     }
 
-    @Permissions('READ_ROLES')
+    @Permissions('FETCH_ROLES')
     @Get('fetch')
     /**
      * Fetch all expense types.
@@ -246,8 +256,19 @@ export class RoleController {
             // Fetch auth user
             let user    = get(req,'user');
 
+            // If the user is a super admin, we don't need to filter by society
+            let where: any = { society: user.society };
+
+            if( user.role.is_super ){
+                set(where.role,'is_super',false);
+            }
+
+            if( !user.role.is_super ){
+                set(where.role,'state',{ $eq: 0 });
+            }        
+
             // Fetch all expense types
-            let roles = await this.roleModel.find({ state: { $eq: 0 }, society: user.society });
+            let roles = await this.roleModel.find(where);
 
             // Send the fetched expense types as a JSON response with HTTP status 200
             res.status(HttpStatus.OK).json({ roles });
