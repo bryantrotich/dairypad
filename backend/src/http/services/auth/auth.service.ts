@@ -1,10 +1,10 @@
 import { ForbiddenException, HttpException, Injectable, Logger, NotFoundException, PreconditionFailedException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';;
-import { UserModel } from 'src/database/models';
+import { RoleModel, UserModel } from 'src/database/models';
 import { ConfigService } from '@nestjs/config';
 import { isEmpty, isNull, omit, toPlainObject } from 'lodash';
 import * as bcrypt from 'bcrypt';
-import * as moment from 'moment';
+
 @Injectable()
 export class AuthService {
 
@@ -13,6 +13,7 @@ export class AuthService {
     private readonly logger = new Logger(AuthService.name);
 
     constructor(
+        private roleModel: RoleModel,
         private userModel: UserModel,
         private configService: ConfigService,
         private jwtService: JwtService
@@ -77,12 +78,16 @@ export class AuthService {
                 secret:    this.config['JWT_SESSION_KEY']
             });
 
+            // Find user model
+            const role = await this.roleModel.findOne({ id: user.role.id }, { populate: ['permissions'] });            
+
             return {
                 token: { 
                     expires_in: parseInt(this.config['JWT_EXPIRES_IN']), 
                     type:       this.config['JWT_TOKEN_TYPE'], 
                     code:       token 
                 },
+                permissions: role.permissions.map(permission => permission.name),
                 user
             };
         } catch (error) {
