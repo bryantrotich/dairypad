@@ -1,4 +1,4 @@
-import { Body, Controller, DefaultValuePipe, Get, Global, HttpException, HttpStatus, Logger, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Delete, Get, Global, HttpException, HttpStatus, Logger, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard, PermissionsGuard } from '../../guards';
 import { Request, Response } from 'express';
 import { PermissionModel, RolePermissionModel } from 'src/database/models';
@@ -14,6 +14,12 @@ export class PermissionController {
 
     private readonly logger = new Logger(PermissionController.name);
 
+    /**
+     * The constructor for the PermissionController class.
+     * 
+     * @param {PermissionModel} permissionModel - The PermissionModel instance for performing database operations related to permissions.
+     * @param {ConfigService} configService - The ConfigService instance for accessing the application configuration.
+     */
     constructor(
         private readonly permissionModel: PermissionModel,
         private readonly configService: ConfigService
@@ -53,13 +59,14 @@ export class PermissionController {
             // Fetch societies with pagination, using limit and offset
             let [ permissions, count ] = await this.permissionModel.findAndCount({ society: user.society },options);
 
-            let modules                = this.configService.get('app.modules')
+            let modules                = this.configService.get<any>('app.modules');
+            let actions                = this.configService.get<any>('app.actions');
 
             // Get pages
             let pages = Math.ceil(count / limit);
             
             // Send the fetched societies as a JSON response with HTTP status 200
-            res.status(HttpStatus.OK).json({ modules, permissions, count, pages });
+            res.status(HttpStatus.OK).json({ actions, modules, permissions, count, pages });
         } catch (error) {
             // Log the error and throw an HTTP exception with the error message and status
             this.logger.error(error);
@@ -90,8 +97,11 @@ export class PermissionController {
             // Assign user society
             set(body,'society',user.society);
 
+            // Set permission name based on action and module
+            set(body,'name',`${body.action}_${body.module}`.toUpperCase());
+
             // Create a new society in the database
-            let role = await this.permissionModel.save(body);
+            await this.permissionModel.save(body);
 
             // Send the created society as a JSON response with HTTP status 201 Created
             res.status(HttpStatus.CREATED).json({});
@@ -130,6 +140,35 @@ export class PermissionController {
             this.logger.error(error);
             throw new HttpException(error.message, error.status);
         }
-    }       
+    }   
+    
+
+    @Permissions('DELETE_PERMISSIONS')
+    @Delete(':id/delete')
+    /**
+     * Delete a role by its ID.
+     * 
+     * @param {string} id - The ID of the role to delete.
+     * @param {Request} req - The HTTP request object.
+     * @param {Response} res - The HTTP response object.
+     * 
+     * @returns {Promise<void>} - Returns a Promise that resolves when the response is sent.
+     */
+    async delete(
+        @Param('id') id: string,
+        @Req() req: Request,  
+        @Res() res: Response
+    ) {
+        try{
+            // Delete the role from the database
+            await this.permissionModel.nativeDelete(id);
+
+            // Send the response with HTTP status 200
+            return res.status(HttpStatus.OK).json({});
+        } catch(error) {
+            // Log the error and throw an HTTP exception with the error message and status
+            throw new HttpException(error.message, error.status);
+        }
+    }    
 
 }
