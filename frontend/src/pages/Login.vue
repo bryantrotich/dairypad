@@ -116,9 +116,9 @@ const submit = async () => {
         const authStore = useAuthStore();
 
         // Validate the entire form before submission
-        const { data: { token, user } } = await $api.post('auth/login', cloneDeep($data.form));
+        const { data: { token, user, permissions } } = await $api.post('auth/login', cloneDeep($data.form));
 
-        authStore.login({token, user});
+        authStore.login({token, user, permissions});
 
         $toast.success($i18n.t('login.messages.success.authenticated'));
 
