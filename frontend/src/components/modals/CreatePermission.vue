@@ -6,20 +6,18 @@
             </CModalHeader>
             <CModalBody>
                 <CCol md="12" class="py-2">
-                    <CFormInput
-                        type="text"
-                        label="Name"
-                        placeholder="eg. Name expense type"
-                        v-model="$data.form.name"
-                    />
-                    <p v-show="has($data.errors,'name')" class="text-danger mb-0">{{ $data.errors.name }}</p>              
-                </CCol>
+                    <CFormSelect label="Action" aria-label="Action" v-model="$data.form.action">
+                        <option>Select Action*</option>
+                        <option v-for="(action,index) in $props.actions" :key="index" :value="action.value">{{ action.name }}</option>
+                    </CFormSelect>
+                    <p v-show="has($data.errors,'action')" class="text-danger mb-0">{{ $data.errors.action }}</p>              
+                </CCol>                  
                 <CCol md="12" class="py-2">
                     <CFormSelect label="Role" aria-label="Expense Type" v-model="$data.form.module">
                         <option>Select Module*</option>
-                        <option v-for="(module,index) in $props.modules" :key="index" :value="module.id">{{ module.name }}</option>
+                        <option v-for="(module,index) in $props.modules" :key="index" :value="module.value">{{ module.name }}</option>
                     </CFormSelect>
-                    <p v-show="has($data.errors,'role')" class="text-danger mb-0">{{ $data.errors.role }}</p>              
+                    <p v-show="has($data.errors,'module')" class="text-danger mb-0">{{ $data.errors.module }}</p>              
                 </CCol>                
                 <CCol md="12" class="py-2">
                     <CFormTextarea                    
@@ -55,6 +53,10 @@ const modal: any  = computed({
 });
 
 const $props: any = defineProps({
+    actions: {
+        default: [],
+        type:    Array
+    },
     modules: {
         default: [],
         type:    Array
@@ -70,7 +72,7 @@ const $data: any = reactive({
     form: {
         description:  "",
         module:       "",
-        name:         "",
+        action:       "",
     },
     loading: Boolean(),
     isDisabled: Boolean(),
@@ -79,14 +81,14 @@ const $data: any = reactive({
 const formSchema: any = object().shape({
     description:  string().required("*Description is required"),
     module:       string().required("*Module is required"),
-    name:         string().required("*Name is required"),
+    action:       string().required("*Action is required"),
 });
 
 const resetForm = () => {
     $data.form = {
         description:  "",
         module:       "",
-        name:         "",
+        action:       "",
     }
 }
 
@@ -97,7 +99,7 @@ const save = async () => {
         // Fetch the socities from the backend
         const { data: { society } } = await $api.post('/permissions',cloneDeep($data.form));
         // Toast show message
-        $toast.success($i18n.t('permissions.messages.success.created'));    
+        $toast.success('Permission has been created.');    
         // Set the socities to the data fetched from the backend
         modal.value = false;
         // Fetch data

@@ -50,7 +50,7 @@
                                                 <CIcon icon="cil-pencil" />
                                                 Edit
                                             </CDropdownItem>
-                                            <CDropdownItem href="#" class="text-danger">
+                                            <CDropdownItem href="#" class="text-danger" @click="remove(permission.id)">
                                                 <CIcon icon="cil-trash" />
                                                 Delete
                                             </CDropdownItem>
@@ -114,6 +114,7 @@
             </CPagination>
         </CCol>
         <CreatePermission
+            :actions="$data.actions"
             :modules="$data.modules"
             :show="$data.modals.create" 
             @fetch="fetch" 
@@ -126,8 +127,11 @@ import { CreatePermission } from '../';
 import { inject, onMounted, reactive, watch } from 'vue';
 import { isEmpty, times } from 'lodash';
 
-const $api:  any = inject('$api');
-const $data: any = reactive({
+const $api:   any  = inject('$api');
+const $toast: any = inject('$toast');
+const $swal:  any  = inject('$swal');
+const $data:  any = reactive({
+    actions:     [],
     permissions: [],
     modals: {
         create: Boolean(),
@@ -159,9 +163,11 @@ const fetch = async () => {
         // Destructure pagination
         const { current, limit } = $data.pagination;
         // Fetch the socities from the backend
-        const { data: { count, permissions, pages, modules } } = await $api.get(`/permissions?page=${current}&limit=${limit}`);
+        const { data: { actions, count, permissions, pages, modules } } = await $api.get(`/permissions?page=${current}&limit=${limit}`);
         // Set the socities to the data fetched from the backend
         $data.permissions      = permissions;
+        // Set the actions to the data fetched from the backend
+        $data.actions          = actions;        
         // Modules
         $data.modules          = modules;
         // Get number of pages
@@ -175,6 +181,43 @@ const fetch = async () => {
         // Set the loader to false so that the user knows that the data has finished fetching
         $data.loaders.fetch = false;
     }
+}
+
+const remove = async (id: string) => {
+    try {
+
+        // Show a confirmation dialog
+        const { isConfirmed } = await $swal.fire({
+            title: 'Are you sure?',
+            text:  'You are about to delete this permission. This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        });
+
+        // If the user clicks cancel, return
+        if( !isConfirmed ) return;
+
+        // Set the loader to true so that the user knows that the data is being fetched.
+        $data.loaders.delete = true;
+
+        // Fetch the socities from the backend
+        await $api.delete(`permissions/${id}/delete`);
+
+        // Toast show message
+        $toast.success('Permission deleted successfully');
+
+        // Fetch new roles
+        fetch();
+    } catch(error) {
+        // Catch any errors that may occur and set the loader to false
+        $data.loaders.delete = false;
+    } finally {
+        // Set the loader to false so that the user knows that the data has finished fetching
+        $data.loaders.delete = false;
+    }    
 }
 
 onMounted(fetch);
