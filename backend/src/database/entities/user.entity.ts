@@ -51,6 +51,11 @@ export class UserEntity {
   @Property({ nullable: true })
   image: string;
 
+  @Property({ persist:  false})
+  get name() {
+    return `${this.first_name} ${this.last_name}`;
+  }  
+
   @Seed(async (faker: Faker, ctx: SeederContext) => {
     return bcrypt.hash('password', 10);
   })
