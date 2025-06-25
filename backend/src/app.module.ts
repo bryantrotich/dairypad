@@ -1,7 +1,7 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ApiMiddleware, RedirectIfAuthMiddleware } from './http/middlewares';
 import { JwtStrategy, LocalStrategy } from './http/guards';
-import { AuthController, CustomerController, EmployeeController, ExpenseController, ExpenseTypeController, PermissionController, ProductController, RoleController, SocietyController, SystemController, TransporterController } from './http/controllers';
+import { AuthController, CustomerController, EmployeeController, ExpenseController, ExpenseTypeController, PermissionController, ProductController, RoleController, SalaryController, SocietyController, SystemController, TransporterController } from './http/controllers';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -13,6 +13,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path'
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { MySqlDriver } from '@mikro-orm/mysql';
+import { SalaryModule } from './modules/salary.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -58,6 +59,7 @@ import { MySqlDriver } from '@mikro-orm/mysql';
     PermissionModule,
     ProductModule,
     RoleModule,
+    SalaryModule,
     SocietyModule,
     TransporterModule,
     UserModule 
@@ -71,6 +73,7 @@ import { MySqlDriver } from '@mikro-orm/mysql';
     PermissionController,
     ProductController, 
     RoleController,
+    SalaryController, 
     SocietyController, 
     SystemController, 
     TransporterController
