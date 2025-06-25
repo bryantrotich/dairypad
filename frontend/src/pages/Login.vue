@@ -122,7 +122,7 @@ const submit = async () => {
 
         $toast.success($i18n.t('login.messages.success.authenticated'));
 
-        $router.push({ path: '/' });
+        window.location.reload();
         
     } catch(error: any) {
         console.log(error);
