@@ -97,7 +97,7 @@ const save = async () => {
         // Set the loader to true so that the user knows that the data is being fetched.
         $data.loading = true;
         // Fetch the socities from the backend
-        const { data: { society } } = await $api.post('/permissions',cloneDeep($data.form));
+        await $api.post('/permissions',cloneDeep($data.form));
         // Toast show message
         $toast.success('Permission has been created.');    
         // Set the socities to the data fetched from the backend
