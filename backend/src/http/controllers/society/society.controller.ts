@@ -170,22 +170,22 @@ export class SocietyController {
             let auth_user = get(req,'user');
             
             // Fetch society
-            let society = await this.societyModel.findOne({ id: society_id });
+            let society = await this.societyModel.findOneOrFail({ id: society_id });
+
+            // If society not found, throw an error
+            let super_role = await this.roleModel.findOneOrFail({ society, is_super: true },{ populate: ['permissions'] });
 
             // Assign user society
-            this.userModel.assign(auth_user,{ society });
+            this.userModel.assign(auth_user,{ role: super_role, society });
 
             // Save user
             await this.userModel.getEntityManager().persistAndFlush(auth_user);
 
             // Update the request user with the new society
-            let user: any = await this.userModel.findOne({ id: auth_user.id });
-
-            // Fetch the role of the user
-            let role: any = await this.roleModel.findOne({ id: user.role.id },{ populate: ['permissions'] });
+            let user: any = await this.userModel.findOneOrFail({ id: auth_user.id });
 
             // Extract permissions from the role
-            let permissions = role.permissions.map(permission => permission.name);
+            let permissions = super_role.permissions.map(permission => permission.name);
 
             // Send the created society as a JSON response with HTTP status 201 Created
             res.status(HttpStatus.CREATED).json({ user, permissions });
