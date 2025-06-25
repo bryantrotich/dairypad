@@ -15,6 +15,7 @@ export { default as CreateExpenseType } from './modals/CreateExpenseType.vue'
 export { default as CreateProduct } from './modals/CreateProduct.vue'
 export { default as CreatePermission } from './modals/CreatePermission.vue'
 export { default as CreateRole } from './modals/CreateRole.vue';
+export { default as CreateSalary } from './modals/CreateSalary.vue'
 export { default as CreateSociety } from './modals/CreateSociety.vue'
 export { default as CreateTransporter } from './modals/CreateTransporter.vue'
 
