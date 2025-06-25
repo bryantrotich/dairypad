@@ -1,4 +1,4 @@
-import { Body, Controller, DefaultValuePipe, Delete, Get, HttpException, HttpStatus, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Delete, Get, HttpException, HttpStatus, Logger, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard, PermissionsGuard } from '../../guards';
 import { Request, Response } from 'express';
 import { RoleModel, UserModel } from 'src/database/models';
@@ -11,6 +11,8 @@ import { MailService } from 'src/http/services';
 @UseGuards(AuthGuard,PermissionsGuard)
 export class EmployeeController {
 
+    private readonly logger = new Logger(EmployeeController.name);
+    ;
     constructor(
         private readonly mailService: MailService,
         private readonly roleModel: RoleModel,
@@ -123,6 +125,44 @@ export class EmployeeController {
         } catch (error) {
             // Log the error and throw an HTTP exception with the error message and status
             console.log(error);
+            throw new HttpException(error.message, error.status);
+        }
+    }
+
+    @Permissions('FETCH_EMPLOYEES')
+    @Get('fetch')
+    /**
+     * Fetch all expense types.
+     * 
+     * @param {Request} req - The HTTP request object.
+     * @param {Response} res - The HTTP response object.
+     * 
+     * @returns {Promise<void>} - Returns a Promise that resolves when the response is sent.
+     */
+    async fetch(
+        @Req()  req:  Request,  
+        @Res()  res:  Response
+    ): Promise<void> {
+        try {
+            // Fetch auth user
+            let user    = get(req,'user');
+
+            // Set the query conditions for fetching roles
+            let where: any = { role: { is_super: false, state: { $eq: 0 } }, society: user.society };
+
+            // If the user is a super admin, fetch all roles with state less than 2
+            if( user.role.is_super ){
+                where.role.state = { $lt: 2 };
+            }
+
+            // Fetch all expense types
+            let employees = await this.userModel.find(where);
+
+            // Send the fetched expense types as a JSON response with HTTP status 200
+            res.status(HttpStatus.OK).json({ employees });
+        } catch (error) {
+            // Log the error and throw an HTTP exception with the error message and status
+            this.logger.error(error);
             throw new HttpException(error.message, error.status);
         }
     }
