@@ -6,6 +6,7 @@ export { ExpenseTypeController as ExpenseTypeController } from './expense-type/e
 export { PermissionController as PermissionController } from './permission/permission.controller'
 export { ProductController as ProductController } from './product/product.controller'
 export { RoleController as RoleController } from './role/role.controller'
+export { SalaryController as SalaryController } from './salary/salary.controller'
 export { SocietyController as SocietyController } from './society/society.controller'
 export { SystemController as SystemController } from './system/system.controller'
 export { TransporterController as TransporterController } from './transporter/transporter.controller'
