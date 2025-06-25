@@ -5,6 +5,7 @@ export { RoleEntity as RoleEntity } from './role.entity';
 export { RolePermissionEntity as RolePermissionEntity } from './role-permission.entity';
 export { PermissionEntity as PermissionEntity } from './permission.entity';
 export { ProductEntity as ProductEntity } from './product.entity';
+export { SalaryEntity as SalaryEntity } from './salary.entity';
 export { SocietyEntity as SocietyEntity } from './society.entity';
 export { TransporterEntity as TransporterEntity } from './transporter.entity';
 export { UserEntity as UserEntity } from './user.entity';

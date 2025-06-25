@@ -5,6 +5,7 @@ export { default as PermissionModel } from './permission.model';
 export { default as ProductModel } from './product.model';
 export { default as RoleModel } from './role.model';
 export { default as RolePermissionModel } from './role-permission.model';
+export { default as SalaryModel } from './salary.model';
 export { default as SocietyModel } from './society.model';
 export { default as TransporterModel } from './transporter.model';
 export { default as UserModel } from './user.model';
