@@ -5,6 +5,7 @@ export { CreateExpenseTypeValidation as CreateExpenseTypeValidation } from './ex
 export { CreatePermissionValidation as CreatePermissionValidation } from './permission/create.validation';
 export { CreateProductValidation as CreateProductValidation } from './product/create.validation';
 export { CreateRoleValidation as CreateRoleValidation } from './role/create.validation';
+export { CreateSalaryValidation as CreateSalaryValidation } from './salary/create.validation';
 export { CreateSocietyValidation as CreateSocietyValidation } from './society/create.validation';
 export { CreateTransporterValidation as CreateTransporterValidation } from './transporter/create.validation';
 export { UpdateRoleValidation as UpdateRoleValidation } from './role/update.validation';
