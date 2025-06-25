@@ -3,9 +3,10 @@ import { registerAs } from "@nestjs/config"
 export default registerAs('app',() => ({
     env: process.env,
     actions: [
+        { name: "All",    value: "all" },
         { name: "Create", value: "create" },
-        { name: "Read", value: "read" },
-        { name: "Fetch", value: "fetch" },
+        { name: "Read",   value: "read" },
+        { name: "Fetch",  value: "fetch" },
         { name: "Update", value: "update" },
         { name: "Delete", value: "delete" },
     ],
@@ -22,6 +23,7 @@ export default registerAs('app',() => ({
         { name: "Permissions", value: "permissions" },
         { name: "Customers", value: "customers" },
         { name: "Products", value: "products" },
+        { name: "Salaries", value: "salaries" },
     ],
     permissions: [
         { name: "CREATE_{MODULE}", value: "create_{MODULE}" },

@@ -97,11 +97,34 @@ export class PermissionController {
             // Assign user society
             set(body,'society',user.society);
 
-            // Set permission name based on action and module
-            set(body,'name',`${body.action}_${body.module}`.toUpperCase());
+            // 
+            if( body.action === 'all' ) {
+                let actions = this.configService.get<any>('app.actions').map((action: any) => action.value).filter((action: string) => action !== 'all');
 
-            // Create a new society in the database
-            await this.permissionModel.save(body);
+                actions     = await Promise.all(
+                    actions.map(
+                        async (action: string) => await this.permissionModel.create({
+                            id:          uuidv4(),
+                            name:        `${action}_${body.module}`.toUpperCase(),
+                            society:     user.society,
+                            module:      body.module,
+                            description: body.description,
+                            created_at:  new Date(), 
+                            updated_at:  new Date()
+                        })
+                    )
+                );
+
+                // Create a new society in the database
+                await this.permissionModel.insertMany(actions);                  
+            } 
+
+            if( body.action != 'all' ) {
+                // Set permission name based on action and module
+                set(body,'name',`${body.action}_${body.module}`.toUpperCase());
+                // Create a new society in the database
+                await this.permissionModel.save(body);                
+            }             
 
             // Send the created society as a JSON response with HTTP status 201 Created
             res.status(HttpStatus.CREATED).json({});
