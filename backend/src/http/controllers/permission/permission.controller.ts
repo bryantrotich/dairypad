@@ -105,7 +105,7 @@ export class PermissionController {
                     actions.map(
                         async (action: string) => await this.permissionModel.create({
                             id:          uuidv4(),
-                            name:        `${action}_${body.module}`.toUpperCase(),
+                            name:        `${action}_${body.module.split(' ').join('_')}`.toUpperCase(),
                             society:     user.society,
                             module:      body.module,
                             description: body.description,
