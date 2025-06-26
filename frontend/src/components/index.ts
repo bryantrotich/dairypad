@@ -8,10 +8,14 @@ export { default as WidgetsStatsTypeA } from './analytics/WidgetsStatsTypeA.vue'
 export { default as WidgetsStatsTypeD } from './analytics/WidgetsStatsTypeD.vue'
 
 // Create modals
+export { default as CreateAdvance } from './modals/CreateAdvance.vue'
 export { default as CreateCustomer } from './modals/CreateCustomer.vue'
+export { default as CreateDelivery } from './modals/CreateDelivery.vue'
 export { default as CreateEmployee } from './modals/CreateEmployee.vue'
 export { default as CreateExpense } from './modals/CreateExpense.vue'
 export { default as CreateExpenseType } from './modals/CreateExpenseType.vue'
+export { default as CreateFarmer } from './modals/CreateFarmer.vue'
+export { default as CreateOvertime } from './modals/CreateOvertime.vue'
 export { default as CreateProduct } from './modals/CreateProduct.vue'
 export { default as CreatePermission } from './modals/CreatePermission.vue'
 export { default as CreateRole } from './modals/CreateRole.vue';
