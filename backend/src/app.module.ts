@@ -1,14 +1,14 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ApiMiddleware, RedirectIfAuthMiddleware } from './http/middlewares';
 import { JwtStrategy, LocalStrategy } from './http/guards';
-import { AuthController, CustomerController, EmployeeController, ExpenseController, ExpenseTypeController, PermissionController, ProductController, RoleController, SalaryController, SocietyController, SystemController, TransporterController } from './http/controllers';
+import { AdvanceController, AuthController, CustomerController, DeliveryController, EmployeeController, ExpenseController, ExpenseTypeController, FarmerController, OvertimeController, PermissionController, ProductController, RoleController, SalaryController, SocietyController, SystemController, TransporterController } from './http/controllers';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { AppConfig } from './support/config';
 import { AuthService } from './http/services';
-import { MailModule, UserModule, RoleModule, SocietyModule, ProductModule, CustomerModule, TransporterModule, ExpenseTypeModule, ExpenseModule, PermissionModule } from './modules';
+import { MailModule, UserModule, RoleModule, SocietyModule, ProductModule, CustomerModule, TransporterModule, ExpenseTypeModule, ExpenseModule, PermissionModule, AdvanceModule, OvertimeModule, DeliveryModule, FarmerModule } from './modules';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path'
 import { MikroOrmModule } from '@mikro-orm/nestjs';
@@ -55,21 +55,29 @@ import { SalaryModule } from './modules/salary.module';
       inject: [ConfigService]
     }),
     MailModule,   
+    AdvanceModule,
     CustomerModule,
+    DeliveryModule,
+    FarmerModule,
+    OvertimeModule,
     PermissionModule,
     ProductModule,
     RoleModule,
     SalaryModule,
     SocietyModule,
     TransporterModule,
-    UserModule 
+    UserModule
   ],
   controllers: [
+    AdvanceController,
     AuthController, 
     CustomerController, 
+    DeliveryController,
     EmployeeController,
     ExpenseController, 
-    ExpenseTypeController, 
+    ExpenseTypeController,
+    FarmerController, 
+    OvertimeController,
     PermissionController,
     ProductController, 
     RoleController,
