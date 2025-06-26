@@ -28,8 +28,10 @@ export class TransporterEntity {
     @Property()
     last_name: string;
 
-    @Property({ getter: true, persist: false })
-    get full_name() { return `${this.first_name} ${this.last_name}`; }    
+    @Property({ persist:  false})
+    get name() {
+        return `${this.first_name} ${this.last_name} ${this.surname}`
+    }  
     
     @Property()
     surname: string;    
