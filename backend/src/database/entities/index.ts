@@ -1,8 +1,12 @@
+export { AdvanceEntity as AdvanceEntity } from './advance.entity';
 export { CustomerEntity as CustomerEntity } from './customer.entity';
+export { DeliveryEntity as DeliveryEntity } from './delivery.entity';
+export { FarmerEntity as FarmerEntity } from './farmer.entity';
 export { ExpenseEntity as ExpenseEntity } from './expense.entity';
 export { ExpenseTypeEntity as ExpenseTypeEntity } from './expense-type.entity';
 export { RoleEntity as RoleEntity } from './role.entity';
 export { RolePermissionEntity as RolePermissionEntity } from './role-permission.entity';
+export { OvertimeEntity as OvertimeEntity } from './overtime.entity';
 export { PermissionEntity as PermissionEntity } from './permission.entity';
 export { ProductEntity as ProductEntity } from './product.entity';
 export { SalaryEntity as SalaryEntity } from './salary.entity';
