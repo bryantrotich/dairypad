@@ -51,9 +51,9 @@
                                         </CDropdown>                                        
                                     </CCol>
                                     <CCol md="12" class="d-flex align-items-center flex-column">
-                                        <CAvatar color="primary" size="xl" class="text-white">{{ transporter.full_name[0] }}</CAvatar>
+                                        <CAvatar color="primary" size="xl" class="text-white">{{ transporter.first_name[0] }}{{ transporter.last_name[0] }}</CAvatar>
                                         <CCol md="12" class="text-center mt-2">
-                                            <h5 class="mb-0">{{ transporter.full_name }}</h5>
+                                            <h5 class="mb-0">{{ transporter.name }}</h5>
                                             <p class="mb-0">{{ transporter.email }}</p>
                                             <p class="mb-0">{{ transporter.id_number }}</p>
                                         </CCol>
