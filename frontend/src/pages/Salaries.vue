@@ -87,12 +87,12 @@
                                         class="mb-0"
                                         aria-label="Previous" 
                                         href="#" 
-                                        :disabled="!isEmpty($data.products) && $data.pagination.current == 1" 
+                                        :disabled="!isEmpty($data.salaries) && $data.pagination.current == 1" 
                                         @click="$data.pagination.current--"
                                     >
                                         <CIcon icon="cil-chevron-left" />
                                     </CPaginationItem>
-                                    <template v-for="page in times($data.pagination.pages, Number)" v-if="!isEmpty($data.products)">
+                                    <template v-for="page in times($data.pagination.pages, Number)" v-if="!isEmpty($data.salaries)">
                                         <CPaginationItem 
                                             class="mb-0"
                                             aria-label="Next"
@@ -105,7 +105,7 @@
                                         class="mb-0"
                                         aria-label="Next" 
                                         href="#" 
-                                        :disabled="!isEmpty($data.products) &&$data.pagination.current == $data.pagination.pages" 
+                                        :disabled="!isEmpty($data.salaries) &&$data.pagination.current == $data.pagination.pages" 
                                         @click="$data.pagination.current++"
                                     >
                                         <CIcon icon="cil-chevron-right" />
