@@ -26,37 +26,30 @@ export const useSidebarStore = defineStore('sidebar', () => {
                         permissions: ['READ_CUSTOMERS']
                     },
                     {
-                        label: 'Products',
-                        icon: 'cil-basket',
-                        to:   { name: 'Products' },
+                        label: 'Deliveries',
+                        icon: 'cil-library',
+                        to:   { name: 'Deliveries' },
                         active: false,
-                        permissions: ['READ_PRODUCTS']
-                    },
+                        permissions: ['READ_DELIVERIES']
+                    },                    
                     {
                         label: 'Expenses',
                         icon: 'cil-dollar',
                         to:   { name: 'Expenses' },
                         active: false,
-                        permissions: ['READ_EXPENSES']
-                    },
+                        permissions: ['READ_EXPENSES', 'READ_EXPENSE_TYPES', 'FETCH_EXPENSE_TYPES']
+                    },                    
                     {
-                        label: 'Societies',
-                        icon: 'cil-building',
-                        to:   { name: 'Societies' },
+                        label: 'Farmers',
+                        icon: 'cil-people',
+                        to:   { name: 'Farmers' },
                         active: false,
-                        permissions: ['READ_SOCIETIES']
-                    },
-                    {
-                        label: 'Transporters',
-                        icon: 'cil-truck',
-                        to:   { name: 'Transporters' },
-                        active: false,
-                        permissions: ['READ_TRANSPORTERS']
-                    },
+                        permissions: ['READ_FARMERS']
+                    },          
                     {
                         label:    'HR',    
                         icon:     'cil-list',
-                        visible:  ['Employees', 'Alowances', 'Deductions', 'LoansAdvances', 'Overtime', 'Salaries'],                     
+                        visible:  ['Employees', 'Alowances', 'Deductions', 'Advances', 'Overtime', 'Salaries'],                     
                         children: [
                             {
                                 label: 'Alowances',
@@ -82,16 +75,16 @@ export const useSidebarStore = defineStore('sidebar', () => {
                             {
                                 label: 'Loans & Advances',
                                 icon: 'cil-user',
-                                to:   { name: 'LoansAdvances' },
+                                to:   { name: 'Advances' },
                                 active: false,
-                                permissions: ['READ_LOANS','READ_ADVANCES']
+                                permissions: ['READ_ADVANCES','FETCH_EMPLOYEES']
                             },
                             {
                                 label: 'Overtime',
                                 icon: 'cil-user',
                                 to:   { name: 'Overtime' },
                                 active: false,
-                                permissions: ['READ_OVERTIME']
+                                permissions: ['READ_OVERTIME','FETCH_EMPLOYEES']
                             },         
                             {
                                 label: 'Salaries',
@@ -101,20 +94,33 @@ export const useSidebarStore = defineStore('sidebar', () => {
                                 permissions: ['READ_SALARIES']
                             },                       
                         ]
+                    },                              
+                    {
+                        label: 'Products',
+                        icon: 'cil-basket',
+                        to:   { name: 'Products' },
+                        active: false,
+                        permissions: ['READ_PRODUCTS']
+                    },
+                    {
+                        label: 'Societies',
+                        icon: 'cil-building',
+                        to:   { name: 'Societies' },
+                        active: false,
+                        permissions: ['READ_SOCIETIES']
+                    },
+                    {
+                        label: 'Transporters',
+                        icon: 'cil-truck',
+                        to:   { name: 'Transporters' },
+                        active: false,
+                        permissions: ['READ_TRANSPORTERS']
                     },                
                 ]
             },
             {
                 title: 'Management',
                 children: [
-                    {
-                        label: 'Roles & Permissions',
-                        icon: 'cil-shield-alt',
-                        to:   { name: 'RolesPermissions' },
-                        category: "Management",            
-                        active: false,
-                        permissions: ['READ_ROLES','READ_PERMISSIONS']
-                    },
                     {
                         label:    'Account',
                         category: "Management",     
@@ -136,7 +142,15 @@ export const useSidebarStore = defineStore('sidebar', () => {
                                 permissions: ['READ_SYSTEM']
                             },
                         ]
-                    }                
+                    },                    
+                    {
+                        label: 'Roles & Permissions',
+                        icon: 'cil-shield-alt',
+                        to:   { name: 'RolesPermissions' },
+                        category: "Management",            
+                        active: false,
+                        permissions: ['READ_ROLES','READ_PERMISSIONS']
+                    },             
                 ]
             }
         ]

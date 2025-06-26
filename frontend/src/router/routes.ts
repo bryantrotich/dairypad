@@ -10,6 +10,16 @@ export default [
         component: () => import('@/pages/Overview.vue')
     },    
     {
+        path: '/deliveries',
+        name: "Deliveries",
+        meta: {
+            title: 'Deliveries',
+            auth:  true,
+            permissions: ['READ_DELIVERIES']            
+        },
+        component: () => import('@/pages/Deliveries.vue')
+    },    
+    {
         path: '/login',
         name: "Login",
         meta: {
@@ -19,6 +29,16 @@ export default [
         },
         component: () => import('@/pages/Login.vue')
     },      
+    {
+        path: '/farmers',
+        name: "Farmers",
+        meta: {
+            title: 'Farmers',
+            auth:  true,
+            permissions: ['READ_FARMERS']            
+        },
+        component: () => import('@/pages/Farmers.vue')
+    },
     {
         path: '/customers',
         name: "Customers",
@@ -33,6 +53,16 @@ export default [
         path: '/hr',
         children: [
             {
+                path: 'advances',
+                name: "Advances",
+                meta: {
+                    title: 'Loans & Advances',
+                    auth:  true,
+                    permissions: ['READ_ADVANCES','FETCH_EMPLOYEES']
+                },
+                component: () => import('@/pages/Advances.vue')
+            },              
+            {
                 path: 'employees',
                 name: "Employees",
                 meta: {
@@ -43,6 +73,16 @@ export default [
                 component: () => import('@/pages/Employees.vue')
             },  
             {
+                path: 'overtime',
+                name: "Overtime",
+                meta: {
+                    title: 'Overtime',
+                    auth:  true,
+                    permissions: ['READ_OVERTIME','FETCH_EMPLOYEES']
+                },
+                component: () => import('@/pages/Overtime.vue')
+            },            
+            {
                 path: 'salaries',
                 name: "Salaries",
                 meta: {
@@ -51,17 +91,7 @@ export default [
                     permissions: ['READ_SALARIES','FETCH_EMPLOYEES']
                 },
                 component: () => import('@/pages/Salaries.vue')
-            },    
-            // {
-            //     path: 'loans',
-            //     name: "LoansAdvances",
-            //     meta: {
-            //         title: 'Loans & Advances',
-            //         auth:  true,
-            //         permissions: ['READ_SALARIES','FETCH_EMPLOYEE']
-            //     },
-            //     component: () => import('@/pages/LoansAdvances.vue')
-            // },                                     
+            }                                   
         ]
     }, 
     {
