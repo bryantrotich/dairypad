@@ -15,7 +15,7 @@ export class ExpenseController {
         private readonly expenseTypeModel: ExpenseTypeModel
     ){}
 
-    @Permissions('VIEW_EXPENSES')
+    @Permissions('READ_EXPENSES')
     @Get('')
     /**
      * Index method to fetch societies with pagination.
@@ -61,7 +61,7 @@ export class ExpenseController {
         }
     }
 
-    @Permissions('STORE_EXPENSES')
+    @Permissions('CREATE_EXPENSES')
     @Post('')
     /**
      * Store a newly created society in storage.
@@ -102,7 +102,7 @@ export class ExpenseController {
         }
     }
 
-    @Permissions('VIEW_EXPENSES')
+    @Permissions('FETCH_EXPENSES')
     @Get('fetch')
     /**
      * Fetch all expense types.

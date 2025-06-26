@@ -1,18 +1,20 @@
 import { Body, Controller, DefaultValuePipe, Get, HttpException, HttpStatus, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '../../guards';
+import { AuthGuard, PermissionsGuard } from '../../guards';
 import { Request, Response } from 'express';
 import { TransporterModel } from 'src/database/models';
-import { CreateCustomerValidation, CreateTransporterValidation } from 'src/http/validations';
+import { CreateTransporterValidation } from 'src/http/validations';
 import { get, set } from 'lodash';
+import { Permissions } from 'src/support/gates';
 
 @Controller('transporters')
+@UseGuards(AuthGuard,PermissionsGuard)
 export class TransporterController {
 
     constructor(
         private readonly transporterModel: TransporterModel
     ){}
 
-    @UseGuards(AuthGuard)
+    @Permissions('READ_TRANSPORTERS')
     @Get('')
     /**
      * Index method to fetch societies with pagination.
@@ -58,7 +60,7 @@ export class TransporterController {
         }
     }
 
-    @UseGuards(AuthGuard)
+    @Permissions('CREATE_TRANSPORTERS')
     @Post('')
     /**
      * Store a newly created society in storage.
@@ -92,5 +94,32 @@ export class TransporterController {
             throw new HttpException(error.message, error.status);
         }
     }
+
+    @Permissions('FETCH_TRANSPORTERS')
+    @Get('fetch')
+    /**
+     * Fetch all expense types.
+     * 
+     * @param {Request} req - The HTTP request object.
+     * @param {Response} res - The HTTP response object.
+     * 
+     * @returns {Promise<void>} - Returns a Promise that resolves when the response is sent.
+     */
+    async fetch(
+        @Req()  req:  Request,  
+        @Res()  res:  Response
+    ): Promise<void> {
+        try {
+            // Fetch all expense types
+            let transporters = await this.transporterModel.find({});
+
+            // Send the fetched expense types as a JSON response with HTTP status 200
+            res.status(HttpStatus.OK).json({ transporters });
+        } catch (error) {
+            // Log the error and throw an HTTP exception with the error message and status
+            console.log(error);
+            throw new HttpException(error.message, error.status);
+        }
+    }     
 
 }

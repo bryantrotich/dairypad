@@ -1,18 +1,20 @@
 import { Body, Controller, DefaultValuePipe, Get, HttpException, HttpStatus, Post, Query, Req, Res, UseGuards } from "@nestjs/common";
-import { AuthGuard } from "src/http/guards";
+import { AuthGuard, PermissionsGuard } from "src/http/guards";
 import { get, set } from 'lodash';
 import { Request, Response } from "express";
 import { ExpenseTypeModel } from "src/database/models";
 import { CreateExpenseTypeValidation } from "src/http/validations";
+import { Permissions } from "src/support/gates";
 
 @Controller('expense-types')
+@UseGuards(AuthGuard,PermissionsGuard)
 export class ExpenseTypeController {
 
     constructor(
         private readonly expenseTypeModel: ExpenseTypeModel
     ){}
 
-    @UseGuards(AuthGuard)
+    @Permissions('READ_EXPENSE_TYPES')
     @Get('')
     /**
      * Index method to fetch societies with pagination.
@@ -58,7 +60,7 @@ export class ExpenseTypeController {
         }
     }
 
-    @UseGuards(AuthGuard)
+    @Permissions('CREATE_EXPENSE_TYPES')
     @Post('')
     /**
      * Store a newly created society in storage.
@@ -93,7 +95,7 @@ export class ExpenseTypeController {
         }
     }
 
-    @UseGuards(AuthGuard)
+    @Permissions('FETCH_EXPENSE_TYPES')
     @Get('fetch')
     /**
      * Fetch all expense types.
