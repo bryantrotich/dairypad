@@ -11,14 +11,14 @@
                         <CCardBody>                       
                             <CTabs :activeItemKey="$data.tab">
                                 <CTabList variant="enclosed" layout="fill">
-                                    <CTab aria-controls="expenses-tab-pane"      :itemKey="1">Expenses</CTab>
-                                    <CTab aria-controls="expense-types-tab-pane" :itemKey="2">Expense Types</CTab>
+                                    <CTab aria-controls="expenses-tab-pane"      :itemKey="1" v-if="$data.expense_tab">Expenses</CTab>
+                                    <CTab aria-controls="expense-types-tab-pane" :itemKey="2" v-if="$data.expense_types_tab">Expense Types</CTab>
                                 </CTabList>
                                 <CTabContent>
-                                    <CTabPanel class="py-3" aria-labelledby="expenses-tab-pane" :itemKey="1">
+                                    <CTabPanel class="py-3" aria-labelledby="expenses-tab-pane" :itemKey="1" v-if="$data.expense_tab">
                                         <Expenses />
                                     </CTabPanel>
-                                    <CTabPanel class="py-3" aria-labelledby="expense-types-tab-pane" :itemKey="2">
+                                    <CTabPanel class="py-3" aria-labelledby="expense-types-tab-pane" :itemKey="2" v-if="$data.expense_types_tab">
                                         <ExpenseTypes />
                                     </CTabPanel>
                                 </CTabContent>
@@ -31,10 +31,20 @@
     </Authenticated>
 </template>
 <script setup lang="ts">
+import { useAuthStore } from '@/stores';
 import { Authenticated, Expenses, ExpenseTypes } from '../components';
-import { reactive } from 'vue';
+import { onBeforeMount, reactive } from 'vue';
 
 const $data: any = reactive({
-    tab: 1
+    tab: 1,
+    expense_tab:       false,
+    expense_types_tab: false    
 });
+
+onBeforeMount(() => {
+    const { auth: { permissions } } = useAuthStore();
+    $data.expense_tab       = permissions.includes('READ_EXPENSES');   
+    $data.expense_types_tab = permissions.includes('READ_EXPENSE_TYPES');   
+}); 
+
 </script>
