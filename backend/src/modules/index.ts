@@ -1,8 +1,12 @@
+export { AdvanceModule as AdvanceModule } from './advance.module';
 export { CustomerModule as CustomerModule } from './customer.module';
+export { DeliveryModule as DeliveryModule } from './delivery.module';
 export { ExpenseModule as ExpenseModule } from './expense.module';
 export { ExpenseTypeModule as ExpenseTypeModule } from './expense-type.module';
+export { FarmerModule as FarmerModule } from './farmer.module';
 export { MailModule as MailModule } from './mail.module';
 export { RoleModule as RoleModule } from './role.module';
+export { OvertimeModule as OvertimeModule } from './overtime.module';
 export { PermissionModule as PermissionModule } from './permission.module';
 export { ProductModule as ProductModule } from './product.module';
 export { SocietyModule as SocietyModule } from './society.module';
