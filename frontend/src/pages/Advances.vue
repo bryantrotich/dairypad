@@ -4,11 +4,11 @@
       <CRow>
         <CCol md="12" class="d-flex justify-content-between">
             <div>
-                <h3>List of deliveries</h3>
-                <p>Manage deliveries listed in the society.</p>
+                <h3>List of loans & advances</h3>
+                <p>Manage loans & advances for employees listed in the society.</p>
             </div>
             <div>
-                <CButton color="primary" @click="$data.modals.create = true">Add Delivery</CButton>
+                <CButton color="primary" @click="$data.modals.create = true">Add Advance</CButton>
             </div>
         </CCol>
         <CCol md="12">
@@ -24,7 +24,7 @@
                                     />           
                                 </CCol>  
                                 <CCol md="2">             
-                                    <CFormSelect aria-placeholder="Per Page" v-model="$data.pagination.limit">
+                                    <CFormSelect aria-placeholder="Per Page" v-model.number="$data.pagination.limit">
                                         <option value="">Per Page</option>
                                         <option value="5">5</option>
                                         <option value="10">10</option>
@@ -38,27 +38,23 @@
                                         <CTableHeaderCell scope="col">#</CTableHeaderCell>
                                         <CTableHeaderCell scope="col">Name</CTableHeaderCell>
                                         <CTableHeaderCell scope="col">Quantity</CTableHeaderCell>
-                                        <CTableHeaderCell scope="col">Delivery Date</CTableHeaderCell>
-                                        <CTableHeaderCell scope="col">Self Transported</CTableHeaderCell>
-                                        <CTableHeaderCell scope="col">Shift</CTableHeaderCell>
+                                        <CTableHeaderCell scope="col">Price</CTableHeaderCell>
+                                        <CTableHeaderCell scope="col">Status</CTableHeaderCell>
                                         <CTableHeaderCell scope="col">Created On</CTableHeaderCell>
                                         <CTableHeaderCell scope="col"></CTableHeaderCell>
                                     </CTableRow>
                                 </CTableHead>
                                 <CTableBody>
-                                    <CTableRow v-for="(delivery,index) in $data.deliveries" v-if="!isEmpty($data.deliveries)" :key="delivery.id">
+                                    <CTableRow v-for="(advance,index) in $data.advances" v-if="!isEmpty($data.advances)" :key="advance.id">
                                         <CTableHeaderCell scope="row">{{ index + 1 }}</CTableHeaderCell>
-                                        <CTableDataCell>{{ delivery.farmer.name }}</CTableDataCell>
-                                        <CTableDataCell>{{ delivery.quantity }}</CTableDataCell>
-                                        <CTableDataCell>{{ delivery.date }}</CTableDataCell>
-                                        <CTableDataCell class="text-center">
-                                            <CBadge :color="delivery.self_transported == 'yes' ? 'success' : 'primary'" class="p-2">
-                                                {{ capitalize(delivery.self_transported) }}
-                                                <CIcon name="cil-truck" v-c-tooltip="{ content: capitalize(delivery.transporter.name) }" v-if="!isNull(delivery.transporter)"/>
-                                            </CBadge>
+                                        <CTableDataCell>{{ advance.name }}</CTableDataCell>
+                                        <CTableDataCell>{{ advance.quantity }}</CTableDataCell>
+                                        <CTableDataCell>{{ advance.price }}</CTableDataCell>
+                                        <CTableDataCell>
+                                            <CBadge color="success" v-if="advance.status == 'active'" class="p-2">{{ advance.status }}</CBadge>
+                                            <CBadge color="warning" class="text-dark p-2" v-else>{{ advance.status }}</CBadge>
                                         </CTableDataCell>
-                                        <CTableDataCell>{{ capitalize(delivery.shift) }}</CTableDataCell>
-                                        <CTableDataCell>{{ delivery.created_at }}</CTableDataCell>
+                                        <CTableDataCell>{{ advance.created_at }}</CTableDataCell>
                                         <CTableDataCell>
                                             <CDropdown color="secondary">
                                                 <CDropdownToggle component="a" :caret="false">
@@ -80,23 +76,23 @@
                                     <CTableRow v-else>
                                         <CTableHeaderCell colspan="6" class="text-center">
                                             <CIcon name="cil-ban" />
-                                            No deliveries found
+                                            No loans & advances found
                                         </CTableHeaderCell>
                                     </CTableRow>
                                 </CTableBody>
                             </CTable>
                             <CCol md="12">
-                                <CPagination aria-label="Paginate deliverys" size="sm" align="center" class="mb-0">
+                                <CPagination aria-label="Paginate advances" size="sm" align="center" class="mb-0">
                                     <CPaginationItem 
                                         class="mb-0"
                                         aria-label="Previous" 
                                         href="#" 
-                                        :disabled="!isEmpty($data.deliveries) && $data.pagination.current == 1" 
+                                        :disabled="!isEmpty($data.advances) && $data.pagination.current == 1" 
                                         @click="$data.pagination.current--"
                                     >
                                         <CIcon icon="cil-chevron-left" />
                                     </CPaginationItem>
-                                    <template v-for="page in times($data.pagination.pages, Number)" v-if="!isEmpty($data.deliveries)">
+                                    <template v-for="page in times($data.pagination.pages, Number)" v-if="!isEmpty($data.advances)">
                                         <CPaginationItem 
                                             class="mb-0"
                                             aria-label="Next"
@@ -109,7 +105,7 @@
                                         class="mb-0"
                                         aria-label="Next" 
                                         href="#" 
-                                        :disabled="!isEmpty($data.deliveries) &&$data.pagination.current == $data.pagination.pages" 
+                                        :disabled="!isEmpty($data.advances) &&$data.pagination.current == $data.pagination.pages" 
                                         @click="$data.pagination.current++"
                                     >
                                         <CIcon icon="cil-chevron-right" />
@@ -122,7 +118,7 @@
             </CRow>
         </CCol>
       </CRow>
-     <CreateDelivery 
+     <CreateAdvance 
         :show="$data.modals.create" 
         @fetch="fetch" 
         @close="$data.modals.create = $event" 
@@ -131,14 +127,14 @@
   </Authenticated>
 </template>
 <script setup lang="ts">
-import { Authenticated, CreateDelivery } from '../components';
+import { Authenticated, CreateAdvance } from '../components';
 import { inject, onMounted, reactive, watch } from 'vue';
-import { capitalize, isEmpty, isNull, times } from 'lodash';
+import { isEmpty, times } from 'lodash';
 import { CTableRow } from '@coreui/vue';
 
 const $api:  any = inject('$api');
 const $data: any = reactive({
-    deliveries: [],
+    advances: [],
     modals: {
         create: Boolean(),
         edit:   Boolean(),
@@ -167,9 +163,9 @@ const fetch = async () => {
         $data.loaders.fetch = true;
         const { current, limit } = $data.pagination;
         // Fetch the socities from the backend
-        const { data: { count, deliveries, pages } } = await $api.get(`/deliveries?page=${current}&limit=${limit}`);
+        const { data: { count, advances, pages } } = await $api.get(`/salaries?page=${current}&limit=${limit}`);
         // Set the socities to the data fetched from the backend
-        $data.deliveries        = deliveries;
+        $data.advances        = advances;
         // Get number of pages
         $data.pagination.pages = pages;
         // Get total number of societies
